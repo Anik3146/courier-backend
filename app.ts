@@ -1,4 +1,5 @@
 import express from "express";
+import * as dotenv from "dotenv";
 import { DataSource } from "typeorm";
 import { Merchant } from "./entities/Merchant";
 import { Delivery } from "./entities/Delivery";
@@ -10,15 +11,16 @@ import { Withdrawal } from "./entities/Withdrawl";
 import { DeliveryCharge } from "./entities/DeliveryCharges";
 import bcrypt from "bcrypt"; // For hashing passwords
 import jwt from "jsonwebtoken"; // For generating JWT tokens
-
+//loading dotenv
+dotenv.config();
 // Define the data source
 const AppDataSource = new DataSource({
-  type: "mysql",
-  host: "localhost",
-  port: 3306,
-  username: "root",
-  password: "admin",
-  database: "courier_db",
+  type: process.env.DB_TYPE as "mysql",
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || "3306"),
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
   entities: [
     Merchant,
     Delivery,
@@ -33,7 +35,7 @@ const AppDataSource = new DataSource({
   logging: true,
 });
 
-const JWT_SECRET = "your-secret-key";
+const JWT_SECRET = process.env.JWT_SECRET || "courier_bd_app";
 // Create the Express app
 const app = express();
 app.use(express.json());
