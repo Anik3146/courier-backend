@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+// src/routes/merchantRouter.ts
+const express_1 = require("express");
+const merchantController_1 = require("../controllers/merchantController");
+const router = (0, express_1.Router)();
+// Register Merchant
+router.post("/register", merchantController_1.registerMerchant);
+// Sign In Merchant
+router.post("/signin", merchantController_1.signInMerchant);
+exports.default = router;
