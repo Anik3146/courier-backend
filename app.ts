@@ -8,6 +8,8 @@ import { DeliveryMan } from "./entities/DeliveryMan";
 import { Thana } from "./entities/Thana";
 import { Withdrawal } from "./entities/Withdrawl";
 import { DeliveryCharge } from "./entities/DeliveryCharges";
+import bcrypt from "bcrypt"; // For hashing passwords
+import jwt from "jsonwebtoken"; // For generating JWT tokens
 
 // Define the data source
 const AppDataSource = new DataSource({
@@ -31,6 +33,7 @@ const AppDataSource = new DataSource({
   logging: true,
 });
 
+const JWT_SECRET = "your-secret-key";
 // Create the Express app
 const app = express();
 app.use(express.json());
@@ -41,6 +44,7 @@ AppDataSource.initialize()
     console.log("Connected to MySQL");
 
     // Example API: Register Merchant
+    // Register Route
     app.post("/register", async (req: any, res: any) => {
       const { company_name, owner_name, mobile_number, email, password } =
         req.body;
@@ -56,20 +60,70 @@ AppDataSource.initialize()
         return res.status(400).json({ message: "All fields are required" });
       }
 
+      // Check if the email already exists in the database
+      const existingMerchant = await AppDataSource.manager.findOne(Merchant, {
+        where: { email },
+      });
+
+      if (existingMerchant) {
+        return res.status(400).json({ message: "Email is already in use" });
+      }
+
+      // Hash the password before saving it to the database
+      const hashedPassword = await bcrypt.hash(password, 10);
+
       const merchant = new Merchant();
       merchant.company_name = company_name;
       merchant.owner_name = owner_name;
       merchant.mobile_number = mobile_number;
       merchant.email = email;
-      merchant.password = password;
+      merchant.password = hashedPassword;
 
       try {
         await AppDataSource.manager.save(merchant);
-        res.status(201).json(merchant);
+        res.status(201).json({ message: "Merchant registered successfully" });
       } catch (error) {
         console.error("Error saving merchant:", error);
         res.status(500).json({ message: "Error saving merchant" });
       }
+    });
+
+    // Sign-In Route
+    app.post("/signin", async (req: any, res: any) => {
+      const { email, password } = req.body;
+
+      // Basic validation
+      if (!email || !password) {
+        return res
+          .status(400)
+          .json({ message: "Email and password are required" });
+      }
+
+      // Find the merchant by email
+      const merchant = await AppDataSource.manager.findOne(Merchant, {
+        where: { email },
+      });
+
+      if (!merchant || !merchant.password) {
+        return res.status(400).json({ message: "Invalid email or password" });
+      }
+
+      // Compare the provided password with the stored hashed password
+      const passwordMatch = await bcrypt.compare(password, merchant.password);
+
+      if (!passwordMatch) {
+        return res.status(400).json({ message: "Invalid email or password" });
+      }
+
+      // Generate JWT token for the merchant
+      const token = jwt.sign(
+        { id: merchant.id, email: merchant.email },
+        JWT_SECRET,
+        { expiresIn: "1h" }
+      );
+
+      // Send the response with the JWT token
+      res.status(200).json({ message: "Sign-in successful", token });
     });
 
     // Example API: Create New Delivery

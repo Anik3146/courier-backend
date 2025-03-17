@@ -22,6 +22,8 @@ const DeliveryMan_1 = require("./entities/DeliveryMan");
 const Thana_1 = require("./entities/Thana");
 const Withdrawl_1 = require("./entities/Withdrawl");
 const DeliveryCharges_1 = require("./entities/DeliveryCharges");
+const bcrypt_1 = __importDefault(require("bcrypt")); // For hashing passwords
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken")); // For generating JWT tokens
 // Define the data source
 const AppDataSource = new typeorm_1.DataSource({
     type: "mysql",
@@ -43,6 +45,7 @@ const AppDataSource = new typeorm_1.DataSource({
     synchronize: true,
     logging: true,
 });
+const JWT_SECRET = "your-secret-key";
 // Create the Express app
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -51,6 +54,7 @@ AppDataSource.initialize()
     .then(() => {
     console.log("Connected to MySQL");
     // Example API: Register Merchant
+    // Register Route
     app.post("/register", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { company_name, owner_name, mobile_number, email, password } = req.body;
         // Basic validation
@@ -61,20 +65,55 @@ AppDataSource.initialize()
             !password) {
             return res.status(400).json({ message: "All fields are required" });
         }
+        // Check if the email already exists in the database
+        const existingMerchant = yield AppDataSource.manager.findOne(Merchant_1.Merchant, {
+            where: { email },
+        });
+        if (existingMerchant) {
+            return res.status(400).json({ message: "Email is already in use" });
+        }
+        // Hash the password before saving it to the database
+        const hashedPassword = yield bcrypt_1.default.hash(password, 10);
         const merchant = new Merchant_1.Merchant();
         merchant.company_name = company_name;
         merchant.owner_name = owner_name;
         merchant.mobile_number = mobile_number;
         merchant.email = email;
-        merchant.password = password;
+        merchant.password = hashedPassword;
         try {
             yield AppDataSource.manager.save(merchant);
-            res.status(201).json(merchant);
+            res.status(201).json({ message: "Merchant registered successfully" });
         }
         catch (error) {
             console.error("Error saving merchant:", error);
             res.status(500).json({ message: "Error saving merchant" });
         }
+    }));
+    // Sign-In Route
+    app.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { email, password } = req.body;
+        // Basic validation
+        if (!email || !password) {
+            return res
+                .status(400)
+                .json({ message: "Email and password are required" });
+        }
+        // Find the merchant by email
+        const merchant = yield AppDataSource.manager.findOne(Merchant_1.Merchant, {
+            where: { email },
+        });
+        if (!merchant || !merchant.password) {
+            return res.status(400).json({ message: "Invalid email or password" });
+        }
+        // Compare the provided password with the stored hashed password
+        const passwordMatch = yield bcrypt_1.default.compare(password, merchant.password);
+        if (!passwordMatch) {
+            return res.status(400).json({ message: "Invalid email or password" });
+        }
+        // Generate JWT token for the merchant
+        const token = jsonwebtoken_1.default.sign({ id: merchant.id, email: merchant.email }, JWT_SECRET, { expiresIn: "1h" });
+        // Send the response with the JWT token
+        res.status(200).json({ message: "Sign-in successful", token });
     }));
     // Example API: Create New Delivery
     app.post("/deliveries", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
