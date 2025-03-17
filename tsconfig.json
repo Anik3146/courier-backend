@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES6", // or "ESNext"
+    "module": "commonjs",
+    "experimentalDecorators": true, // Enable experimental decorators
+    "emitDecoratorMetadata": true, // Emit metadata for decorators (needed by TypeORM)
+    "strict": true, // Optional: enables all strict type-checking options
+    "skipLibCheck": true, // Optional: skip type checking of declaration files
+    "esModuleInterop": true // Enable this flag
+  }
+}
