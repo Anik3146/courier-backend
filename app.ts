@@ -3,6 +3,12 @@ import express from "express";
 import { AppDataSource } from "./data-source"; // Assuming your data source is configured here
 import merchantRouter from "./routes/merchantRouter";
 import deliveryRouter from "./routes/deliveryRouter";
+import deliveryChargesRoutes from "./routes/deliveryChargesRouter";
+import deliveryManRoutes from "./routes/deliverymanRouter";
+import pickupManRoutes from "./routes/pickupmanRouter";
+import thanaRoutes from "./routes/thanaRouter";
+import withdrawalRoutes from "./routes/withdrawlRouter";
+import agentRoutes from "./routes/agentRouter";
 
 const app = express();
 app.use(express.json());
@@ -19,6 +25,12 @@ AppDataSource.initialize()
 // Use the routes
 app.use("/merchant", merchantRouter);
 app.use("/deliveries", deliveryRouter);
+app.use("/delivery-charges", deliveryChargesRoutes);
+app.use("/delivery-men", deliveryManRoutes);
+app.use("/pickup-men", pickupManRoutes);
+app.use("/thanas", thanaRoutes);
+app.use("/withdrawals", withdrawalRoutes);
+app.use("/agents", agentRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;
