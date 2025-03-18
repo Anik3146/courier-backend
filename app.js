@@ -15,7 +15,9 @@ const thanaRouter_1 = __importDefault(require("./routes/thanaRouter"));
 const withdrawlRouter_1 = __importDefault(require("./routes/withdrawlRouter"));
 const agentRouter_1 = __importDefault(require("./routes/agentRouter"));
 const productRouter_1 = __importDefault(require("./routes/productRouter"));
+const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
+app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 // Initialize the data source
 data_source_1.AppDataSource.initialize()

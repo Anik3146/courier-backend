@@ -10,8 +10,10 @@ import thanaRoutes from "./routes/thanaRouter";
 import withdrawalRoutes from "./routes/withdrawlRouter";
 import agentRoutes from "./routes/agentRouter";
 import productRouter from "./routes/productRouter";
+import cors from "cors";
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 // Initialize the data source
