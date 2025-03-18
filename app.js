@@ -14,6 +14,7 @@ const pickupmanRouter_1 = __importDefault(require("./routes/pickupmanRouter"));
 const thanaRouter_1 = __importDefault(require("./routes/thanaRouter"));
 const withdrawlRouter_1 = __importDefault(require("./routes/withdrawlRouter"));
 const agentRouter_1 = __importDefault(require("./routes/agentRouter"));
+const productRouter_1 = __importDefault(require("./routes/productRouter"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 // Initialize the data source
@@ -33,6 +34,7 @@ app.use("/pickup-men", pickupmanRouter_1.default);
 app.use("/thanas", thanaRouter_1.default);
 app.use("/withdrawals", withdrawlRouter_1.default);
 app.use("/agents", agentRouter_1.default);
+app.use("/products", productRouter_1.default);
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

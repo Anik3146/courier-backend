@@ -9,6 +9,7 @@ import pickupManRoutes from "./routes/pickupmanRouter";
 import thanaRoutes from "./routes/thanaRouter";
 import withdrawalRoutes from "./routes/withdrawlRouter";
 import agentRoutes from "./routes/agentRouter";
+import productRouter from "./routes/productRouter";
 
 const app = express();
 app.use(express.json());
@@ -31,6 +32,7 @@ app.use("/pickup-men", pickupManRoutes);
 app.use("/thanas", thanaRoutes);
 app.use("/withdrawals", withdrawalRoutes);
 app.use("/agents", agentRoutes);
+app.use("/products", productRouter);
 
 // Start the server
 const PORT = process.env.PORT || 5000;

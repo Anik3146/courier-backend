@@ -45,6 +45,7 @@ const DeliveryMan_1 = require("./entities/DeliveryMan");
 const Thana_1 = require("./entities/Thana");
 const Withdrawl_1 = require("./entities/Withdrawl");
 const DeliveryCharges_1 = require("./entities/DeliveryCharges");
+const Products_1 = require("./entities/Products");
 // Add other entities as required
 dotenv.config();
 exports.AppDataSource = new typeorm_1.DataSource({
@@ -63,6 +64,7 @@ exports.AppDataSource = new typeorm_1.DataSource({
         Thana_1.Thana,
         Withdrawl_1.Withdrawal,
         DeliveryCharges_1.DeliveryCharge,
+        Products_1.Product,
     ], // Include all entities
     synchronize: true,
     logging: true,
