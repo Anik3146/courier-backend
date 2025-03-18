@@ -118,6 +118,9 @@ const updateDeliveryStatus = (req, res) => __awaiter(void 0, void 0, void 0, fun
         if (!delivery) {
             return res.status(404).json({ message: "Delivery not found" });
         }
+        // Check if the delivery or pickup status is already done (completed)
+        const isCompleted = delivery.delivery_status === "Delivered" &&
+            delivery.pickup_status === "Picked Up";
         // Update the agent, pickupMan, and deliveryMan based on the provided IDs
         const agent = yield data_source_1.AppDataSource.manager.findOne(Agent_1.Agent, {
             where: { id: agentId },
@@ -137,14 +140,14 @@ const updateDeliveryStatus = (req, res) => __awaiter(void 0, void 0, void 0, fun
         delivery.agent = agent;
         delivery.pickupMan = pickupMan;
         delivery.deliveryMan = deliveryMan;
-        // Update pickup status and delivery status
+        // Update pickup status and delivery status if provided
         if (pickup_status)
             delivery.pickup_status = pickup_status;
         if (delivery_status)
             delivery.delivery_status = delivery_status;
-        // If the delivery is completed (Delivered) and pickup is done (Picked Up), update balances
-        if (delivery.delivery_status === "Delivered" &&
-            delivery.pickup_status === "Picked Up") {
+        // If the delivery is completed (Delivered) and pickup is done (Picked Up),
+        // Update balances only if it's not already completed
+        if (!isCompleted) {
             const price = delivery.price || 0;
             const agentCut = price * 0.1; // 10% cut for agent
             const pickupManCut = price * 0.03; // 3% cut for pickup man

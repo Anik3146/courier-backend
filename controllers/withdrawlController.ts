@@ -51,28 +51,100 @@ export const createWithdrawal = async (
       return res.status(400).json({ message: "Insufficient balance" });
     }
 
-    // Deduct the withdrawal amount from the user's balance
-    if (user.balance) user.balance -= amount;
-    await AppDataSource.manager.save(user); // Save updated balance
-
-    // Create the withdrawal record
+    // Create the withdrawal record with status set to 'pending'
     const withdrawal = new Withdrawal();
     withdrawal.user_id = user_id;
     withdrawal.user_type = user_type;
     withdrawal.amount = amount;
     withdrawal.withdraw_method = withdraw_method;
+    withdrawal.status = "pending"; // Set the withdrawal status to 'pending'
 
     // Save withdrawal record to the database
     await AppDataSource.manager.save(withdrawal);
 
-    // Return success response
+    // Return success response with the 'pending' status
     return res.status(201).json({
-      message: "Withdrawal created successfully",
+      message: "Withdrawal created successfully, status set to pending",
       withdrawal,
       updatedBalance: user.balance,
     });
   } catch (error) {
     console.error("Error creating withdrawal:", error);
     return res.status(500).json({ message: "Error creating withdrawal" });
+  }
+};
+
+// Function to update withdrawal status to 'completed' and user balance after the withdrawal is processed
+export const completeWithdrawal = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  const { withdrawal_id } = req.body;
+
+  if (!withdrawal_id) {
+    return res.status(400).json({ message: "Withdrawal ID is required" });
+  }
+
+  try {
+    // Find the withdrawal by its ID
+    const withdrawal = await AppDataSource.manager.findOne(Withdrawal, {
+      where: { id: withdrawal_id },
+    });
+
+    if (!withdrawal) {
+      return res.status(404).json({ message: "Withdrawal not found" });
+    }
+
+    // Update the withdrawal status to 'completed'
+    withdrawal.status = "completed";
+    await AppDataSource.manager.save(withdrawal);
+
+    // Find the user based on the withdrawal user_type and user_id
+    let user;
+    if (withdrawal.user_type === "merchant") {
+      user = await AppDataSource.manager.findOne(Merchant, {
+        where: { id: withdrawal.user_id },
+      });
+    } else if (withdrawal.user_type === "agent") {
+      user = await AppDataSource.manager.findOne(Agent, {
+        where: { id: withdrawal.user_id },
+      });
+    } else if (withdrawal.user_type === "pickup_man") {
+      user = await AppDataSource.manager.findOne(PickupMan, {
+        where: { id: withdrawal.user_id },
+      });
+    } else if (withdrawal.user_type === "delivery_man") {
+      user = await AppDataSource.manager.findOne(DeliveryMan, {
+        where: { id: withdrawal.user_id },
+      });
+    }
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: `${withdrawal.user_type} not found` });
+    }
+
+    // Update the user's balance (assuming the withdrawal amount is being deducted from the balance)
+    if (user.balance && withdrawal.amount) {
+      user.balance -= withdrawal.amount;
+
+      // Ensure the balance doesn't go below zero
+      if (user.balance < 0) {
+        user.balance = 0;
+      }
+    }
+
+    await AppDataSource.manager.save(user); // Save the updated balance
+
+    // Return a response confirming the withdrawal completion
+    return res.status(200).json({
+      message: "Withdrawal completed successfully",
+      withdrawal,
+      updatedBalance: user.balance,
+    });
+  } catch (error) {
+    console.error("Error completing withdrawal:", error);
+    return res.status(500).json({ message: "Error completing withdrawal" });
   }
 };

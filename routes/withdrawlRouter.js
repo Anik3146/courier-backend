@@ -24,7 +24,18 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(500).json({ message: "An unexpected error occurred." });
     }
 }));
-// // Get all Withdrawals
+// Complete Withdrawal (update status to 'completed' and update user balance)
+router.put("/complete", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        // Call the controller function to handle the completion logic
+        yield (0, withdrawlController_1.completeWithdrawal)(req, res);
+    }
+    catch (error) {
+        console.error("Error in completing withdrawal:", error);
+        res.status(500).json({ message: "An unexpected error occurred." });
+    }
+}));
+// Get all Withdrawals - Uncomment if needed
 // router.get("/", async (req, res) => {
 //   try {
 //     // Call the controller function to get all withdrawals
@@ -34,7 +45,7 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 //     res.status(500).json({ message: "An unexpected error occurred." });
 //   }
 // });
-// // Get Withdrawal by ID
+// Get Withdrawal by ID - Uncomment if needed
 // router.get("/:id", async (req, res) => {
 //   try {
 //     // Call the controller function to get a withdrawal by ID
@@ -44,7 +55,7 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 //     res.status(500).json({ message: "An unexpected error occurred." });
 //   }
 // });
-// // Update Withdrawal
+// Update Withdrawal - Uncomment if needed
 // router.put("/:id", async (req, res) => {
 //   try {
 //     // Call the controller function to update the withdrawal status
@@ -54,7 +65,7 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 //     res.status(500).json({ message: "An unexpected error occurred." });
 //   }
 // });
-// // Delete Withdrawal
+// Delete Withdrawal - Uncomment if needed
 // router.delete("/:id", async (req, res) => {
 //   try {
 //     // Call the controller function to delete a withdrawal

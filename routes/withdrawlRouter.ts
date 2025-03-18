@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { createWithdrawal } from "../controllers/withdrawlController";
+import {
+  createWithdrawal,
+  completeWithdrawal,
+} from "../controllers/withdrawlController";
 
 const router = Router();
 
@@ -16,7 +19,18 @@ router.post("/", async (req, res) => {
   }
 });
 
-// // Get all Withdrawals
+// Complete Withdrawal (update status to 'completed' and update user balance)
+router.put("/complete", async (req, res) => {
+  try {
+    // Call the controller function to handle the completion logic
+    await completeWithdrawal(req, res);
+  } catch (error) {
+    console.error("Error in completing withdrawal:", error);
+    res.status(500).json({ message: "An unexpected error occurred." });
+  }
+});
+
+// Get all Withdrawals - Uncomment if needed
 // router.get("/", async (req, res) => {
 //   try {
 //     // Call the controller function to get all withdrawals
@@ -27,7 +41,7 @@ router.post("/", async (req, res) => {
 //   }
 // });
 
-// // Get Withdrawal by ID
+// Get Withdrawal by ID - Uncomment if needed
 // router.get("/:id", async (req, res) => {
 //   try {
 //     // Call the controller function to get a withdrawal by ID
@@ -38,7 +52,7 @@ router.post("/", async (req, res) => {
 //   }
 // });
 
-// // Update Withdrawal
+// Update Withdrawal - Uncomment if needed
 // router.put("/:id", async (req, res) => {
 //   try {
 //     // Call the controller function to update the withdrawal status
@@ -49,7 +63,7 @@ router.post("/", async (req, res) => {
 //   }
 // });
 
-// // Delete Withdrawal
+// Delete Withdrawal - Uncomment if needed
 // router.delete("/:id", async (req, res) => {
 //   try {
 //     // Call the controller function to delete a withdrawal
