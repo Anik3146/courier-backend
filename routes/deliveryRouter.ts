@@ -1,9 +1,30 @@
-// src/routes/deliveryRouter.ts
+// src/routes/deliveryRoutes.ts
 import { Router } from "express";
-import { createDelivery } from "../controllers/deliveryController";
+import {
+  createDelivery,
+  updateDeliveryStatus,
+} from "../controllers/deliveryController";
 
 const router = Router();
 
-router.post("/", createDelivery);
+// Create a new Delivery
+router.post("/", async (req, res) => {
+  try {
+    await createDelivery(req, res); // Call the controller function
+  } catch (error) {
+    console.error("Error in creating delivery:", error);
+    res.status(500).json({ message: "An unexpected error occurred." });
+  }
+});
+
+// Update Delivery Status (Pickup and Delivery)
+router.put("/:id", async (req, res) => {
+  try {
+    await updateDeliveryStatus(req, res); // Call the controller function
+  } catch (error) {
+    console.error("Error in updating delivery status:", error);
+    res.status(500).json({ message: "An unexpected error occurred." });
+  }
+});
 
 export default router;
