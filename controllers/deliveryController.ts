@@ -31,6 +31,7 @@ export const createDelivery = (req: Request, res: Response) => {
       division,
       zilla,
       thana,
+      delivery_charge,
     } = req.body;
 
     // Basic validation
@@ -64,18 +65,18 @@ export const createDelivery = (req: Request, res: Response) => {
 
       // Fetch the delivery charge for the specific Thana and area (if applicable)
       // Fetch the delivery charge for the specific Thana and area (if applicable)
-      const deliveryChargeEntity = await AppDataSource.manager.findOne(
-        DeliveryCharge,
-        {
-          where: { area: area },
-        }
-      );
+      // const deliveryChargeEntity = await AppDataSource.manager.findOne(
+      //   DeliveryCharge,
+      //   {
+      //     where: { area: area },
+      //   }
+      // );
 
-      // Set a default value for delivery charge if not found
-      const defaultDeliveryCharge = 100; // Set your default charge value here
-      const deliveryCharge = deliveryChargeEntity
-        ? deliveryChargeEntity.charge
-        : defaultDeliveryCharge;
+      // // Set a default value for delivery charge if not found
+      // const defaultDeliveryCharge = 100; // Set your default charge value here
+      // const deliveryCharge = deliveryChargeEntity
+      //   ? deliveryChargeEntity.charge
+      //   : defaultDeliveryCharge;
 
       // Create a new delivery
       const delivery = new Delivery();
@@ -96,7 +97,7 @@ export const createDelivery = (req: Request, res: Response) => {
       delivery.division = division;
       delivery.zilla = zilla;
       delivery.thana = thana;
-      delivery.delivery_charge = deliveryCharge; // Set the delivery charge (either found or default)
+      delivery.delivery_charge = delivery_charge; // Set the delivery charge (either found or default)
 
       // Set default status to "Pending"
       delivery.delivery_status = "Pending";

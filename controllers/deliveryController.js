@@ -16,12 +16,11 @@ const Delivery_1 = require("../entities/Delivery");
 const Agent_1 = require("../entities/Agent");
 const PickupMan_1 = require("../entities/PickupMan");
 const DeliveryMan_1 = require("../entities/DeliveryMan");
-const DeliveryCharges_1 = require("../entities/DeliveryCharges");
 // Create a new delivery
 const createDelivery = (req, res) => {
     // The outer function is synchronous
     const createNewDelivery = () => __awaiter(void 0, void 0, void 0, function* () {
-        const { store_name, product_type, merchant_id, recipient_name, recipient_phone, recipient_secondary_phone, address, area, instructions, delivery_type, total_weight, quantity, amount_to_collect, price, division, zilla, thana, } = req.body;
+        const { store_name, product_type, merchant_id, recipient_name, recipient_phone, recipient_secondary_phone, address, area, instructions, delivery_type, total_weight, quantity, amount_to_collect, price, division, zilla, thana, delivery_charge, } = req.body;
         // Basic validation
         if (!store_name || !product_type || !recipient_name || !recipient_phone) {
             return res.status(400).json({ message: "Missing required fields" });
@@ -47,14 +46,17 @@ const createDelivery = (req, res) => {
             // }
             // Fetch the delivery charge for the specific Thana and area (if applicable)
             // Fetch the delivery charge for the specific Thana and area (if applicable)
-            const deliveryChargeEntity = yield data_source_1.AppDataSource.manager.findOne(DeliveryCharges_1.DeliveryCharge, {
-                where: { area: area },
-            });
-            // Set a default value for delivery charge if not found
-            const defaultDeliveryCharge = 100; // Set your default charge value here
-            const deliveryCharge = deliveryChargeEntity
-                ? deliveryChargeEntity.charge
-                : defaultDeliveryCharge;
+            // const deliveryChargeEntity = await AppDataSource.manager.findOne(
+            //   DeliveryCharge,
+            //   {
+            //     where: { area: area },
+            //   }
+            // );
+            // // Set a default value for delivery charge if not found
+            // const defaultDeliveryCharge = 100; // Set your default charge value here
+            // const deliveryCharge = deliveryChargeEntity
+            //   ? deliveryChargeEntity.charge
+            //   : defaultDeliveryCharge;
             // Create a new delivery
             const delivery = new Delivery_1.Delivery();
             delivery.store_name = store_name;
@@ -74,7 +76,7 @@ const createDelivery = (req, res) => {
             delivery.division = division;
             delivery.zilla = zilla;
             delivery.thana = thana;
-            delivery.delivery_charge = deliveryCharge; // Set the delivery charge (either found or default)
+            delivery.delivery_charge = delivery_charge; // Set the delivery charge (either found or default)
             // Set default status to "Pending"
             delivery.delivery_status = "Pending";
             delivery.pickup_status = "Pending";
