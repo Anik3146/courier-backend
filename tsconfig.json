@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "outDir": "./dist",
     "target": "ES6", // or "ESNext"
     "module": "commonjs",
     "experimentalDecorators": true, // Enable experimental decorators
