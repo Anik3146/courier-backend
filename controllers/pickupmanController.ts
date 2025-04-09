@@ -13,11 +13,11 @@ export const createPickupMan = async (
   const { name, balance, agentId, thanaId } = req.body;
 
   if (!name || balance === undefined || !agentId || !thanaId) {
-    return res
-      .status(400)
-      .json({
-        message: "All fields (name, balance, agent, thana) are required",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "All fields (name, balance, agent, thana) are required",
+      data: {},
+    });
   }
 
   try {
@@ -29,7 +29,11 @@ export const createPickupMan = async (
     });
 
     if (!agent || !thana) {
-      return res.status(404).json({ message: "Agent or Thana not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Agent or Thana not found",
+        data: {},
+      });
     }
 
     const pickupMan = new PickupMan();
@@ -39,12 +43,18 @@ export const createPickupMan = async (
     pickupMan.thana = thana;
 
     await AppDataSource.manager.save(pickupMan);
-    return res
-      .status(201)
-      .json({ message: "Pickup Man created successfully", pickupMan });
+    return res.status(201).json({
+      success: true,
+      message: "Pickup Man created successfully",
+      data: pickupMan,
+    });
   } catch (error) {
     console.error("Error creating pickup man:", error);
-    return res.status(500).json({ message: "Error creating pickup man" });
+    return res.status(500).json({
+      success: false,
+      message: "Error creating pickup man",
+      data: {},
+    });
   }
 };
 
@@ -57,10 +67,18 @@ export const getPickupMen = async (
     const pickupMen = await AppDataSource.manager.find(PickupMan, {
       relations: ["agent", "thana"],
     });
-    return res.status(200).json(pickupMen);
+    return res.status(200).json({
+      success: true,
+      message: "Pickup Men fetched successfully",
+      data: pickupMen,
+    });
   } catch (error) {
     console.error("Error fetching pickup men:", error);
-    return res.status(500).json({ message: "Error fetching pickup men" });
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching pickup men",
+      data: {},
+    });
   }
 };
 
@@ -78,13 +96,25 @@ export const getPickupManById = async (
     });
 
     if (!pickupMan) {
-      return res.status(404).json({ message: "Pickup Man not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Pickup Man not found",
+        data: {},
+      });
     }
 
-    return res.status(200).json(pickupMan);
+    return res.status(200).json({
+      success: true,
+      message: "Pickup Man fetched successfully",
+      data: pickupMan,
+    });
   } catch (error) {
     console.error("Error fetching pickup man by ID:", error);
-    return res.status(500).json({ message: "Error fetching pickup man" });
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching pickup man",
+      data: {},
+    });
   }
 };
 
@@ -97,11 +127,11 @@ export const updatePickupMan = async (
   const { name, balance, agentId, thanaId } = req.body;
 
   if (!name || balance === undefined || !agentId || !thanaId) {
-    return res
-      .status(400)
-      .json({
-        message: "All fields (name, balance, agent, thana) are required",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "All fields (name, balance, agent, thana) are required",
+      data: {},
+    });
   }
 
   try {
@@ -110,7 +140,11 @@ export const updatePickupMan = async (
     });
 
     if (!pickupMan) {
-      return res.status(404).json({ message: "Pickup Man not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Pickup Man not found",
+        data: {},
+      });
     }
 
     const agent = await AppDataSource.manager.findOne(Agent, {
@@ -121,7 +155,11 @@ export const updatePickupMan = async (
     });
 
     if (!agent || !thana) {
-      return res.status(404).json({ message: "Agent or Thana not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Agent or Thana not found",
+        data: {},
+      });
     }
 
     pickupMan.name = name;
@@ -130,12 +168,18 @@ export const updatePickupMan = async (
     pickupMan.thana = thana;
 
     await AppDataSource.manager.save(pickupMan);
-    return res
-      .status(200)
-      .json({ message: "Pickup Man updated successfully", pickupMan });
+    return res.status(200).json({
+      success: true,
+      message: "Pickup Man updated successfully",
+      data: pickupMan,
+    });
   } catch (error) {
     console.error("Error updating pickup man:", error);
-    return res.status(500).json({ message: "Error updating pickup man" });
+    return res.status(500).json({
+      success: false,
+      message: "Error updating pickup man",
+      data: {},
+    });
   }
 };
 
@@ -152,13 +196,25 @@ export const deletePickupMan = async (
     });
 
     if (!pickupMan) {
-      return res.status(404).json({ message: "Pickup Man not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Pickup Man not found",
+        data: {},
+      });
     }
 
     await AppDataSource.manager.remove(pickupMan);
-    return res.status(200).json({ message: "Pickup Man deleted successfully" });
+    return res.status(200).json({
+      success: true,
+      message: "Pickup Man deleted successfully",
+      data: {},
+    });
   } catch (error) {
     console.error("Error deleting pickup man:", error);
-    return res.status(500).json({ message: "Error deleting pickup man" });
+    return res.status(500).json({
+      success: false,
+      message: "Error deleting pickup man",
+      data: {},
+    });
   }
 };

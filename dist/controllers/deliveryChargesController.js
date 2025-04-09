@@ -16,7 +16,13 @@ const DeliveryCharges_1 = require("../entities/DeliveryCharges");
 const createDeliveryCharge = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { area, charge } = req.body;
     if (!area || charge === undefined) {
-        return res.status(400).json({ message: "Area and charge are required" });
+        return res
+            .status(400)
+            .json({
+            success: false,
+            message: "Area and charge are required",
+            data: {},
+        });
     }
     try {
         const deliveryCharge = new DeliveryCharges_1.DeliveryCharge();
@@ -24,16 +30,21 @@ const createDeliveryCharge = (req, res) => __awaiter(void 0, void 0, void 0, fun
         deliveryCharge.charge = charge;
         // Save the new delivery charge to the database
         yield data_source_1.AppDataSource.manager.save(deliveryCharge);
-        return res
-            .status(201)
-            .json({
+        return res.status(201).json({
+            success: true,
             message: "Delivery charge created successfully",
-            deliveryCharge,
+            data: deliveryCharge,
         });
     }
     catch (error) {
         console.error("Error creating delivery charge:", error);
-        return res.status(500).json({ message: "Error creating delivery charge" });
+        return res
+            .status(500)
+            .json({
+            success: false,
+            message: "Error creating delivery charge",
+            data: {},
+        });
     }
 });
 exports.createDeliveryCharge = createDeliveryCharge;
@@ -41,11 +52,21 @@ exports.createDeliveryCharge = createDeliveryCharge;
 const getDeliveryCharges = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const deliveryCharges = yield data_source_1.AppDataSource.manager.find(DeliveryCharges_1.DeliveryCharge);
-        return res.status(200).json(deliveryCharges);
+        return res.status(200).json({
+            success: true,
+            message: "Delivery charges fetched successfully",
+            data: deliveryCharges,
+        });
     }
     catch (error) {
         console.error("Error fetching delivery charges:", error);
-        return res.status(500).json({ message: "Error fetching delivery charges" });
+        return res
+            .status(500)
+            .json({
+            success: false,
+            message: "Error fetching delivery charges",
+            data: [],
+        });
     }
 });
 exports.getDeliveryCharges = getDeliveryCharges;
@@ -57,13 +78,29 @@ const getDeliveryChargeById = (req, res) => __awaiter(void 0, void 0, void 0, fu
             where: { id: Number(id) },
         });
         if (!deliveryCharge) {
-            return res.status(404).json({ message: "Delivery charge not found" });
+            return res
+                .status(404)
+                .json({
+                success: false,
+                message: "Delivery charge not found",
+                data: {},
+            });
         }
-        return res.status(200).json(deliveryCharge);
+        return res.status(200).json({
+            success: true,
+            message: "Delivery charge fetched successfully",
+            data: deliveryCharge,
+        });
     }
     catch (error) {
         console.error("Error fetching delivery charge by ID:", error);
-        return res.status(500).json({ message: "Error fetching delivery charge" });
+        return res
+            .status(500)
+            .json({
+            success: false,
+            message: "Error fetching delivery charge",
+            data: {},
+        });
     }
 });
 exports.getDeliveryChargeById = getDeliveryChargeById;
@@ -72,29 +109,46 @@ const updateDeliveryCharge = (req, res) => __awaiter(void 0, void 0, void 0, fun
     const { id } = req.params;
     const { area, charge } = req.body;
     if (!area || charge === undefined) {
-        return res.status(400).json({ message: "Area and charge are required" });
+        return res
+            .status(400)
+            .json({
+            success: false,
+            message: "Area and charge are required",
+            data: {},
+        });
     }
     try {
         const deliveryCharge = yield data_source_1.AppDataSource.manager.findOne(DeliveryCharges_1.DeliveryCharge, {
             where: { id: Number(id) },
         });
         if (!deliveryCharge) {
-            return res.status(404).json({ message: "Delivery charge not found" });
+            return res
+                .status(404)
+                .json({
+                success: false,
+                message: "Delivery charge not found",
+                data: {},
+            });
         }
         deliveryCharge.area = area;
         deliveryCharge.charge = charge;
         // Save the updated delivery charge to the database
         yield data_source_1.AppDataSource.manager.save(deliveryCharge);
-        return res
-            .status(200)
-            .json({
+        return res.status(200).json({
+            success: true,
             message: "Delivery charge updated successfully",
-            deliveryCharge,
+            data: deliveryCharge,
         });
     }
     catch (error) {
         console.error("Error updating delivery charge:", error);
-        return res.status(500).json({ message: "Error updating delivery charge" });
+        return res
+            .status(500)
+            .json({
+            success: false,
+            message: "Error updating delivery charge",
+            data: {},
+        });
     }
 });
 exports.updateDeliveryCharge = updateDeliveryCharge;
@@ -106,17 +160,31 @@ const deleteDeliveryCharge = (req, res) => __awaiter(void 0, void 0, void 0, fun
             where: { id: Number(id) },
         });
         if (!deliveryCharge) {
-            return res.status(404).json({ message: "Delivery charge not found" });
+            return res
+                .status(404)
+                .json({
+                success: false,
+                message: "Delivery charge not found",
+                data: {},
+            });
         }
         // Delete the delivery charge from the database
         yield data_source_1.AppDataSource.manager.remove(deliveryCharge);
-        return res
-            .status(200)
-            .json({ message: "Delivery charge deleted successfully" });
+        return res.status(200).json({
+            success: true,
+            message: "Delivery charge deleted successfully",
+            data: {},
+        });
     }
     catch (error) {
         console.error("Error deleting delivery charge:", error);
-        return res.status(500).json({ message: "Error deleting delivery charge" });
+        return res
+            .status(500)
+            .json({
+            success: false,
+            message: "Error deleting delivery charge",
+            data: {},
+        });
     }
 });
 exports.deleteDeliveryCharge = deleteDeliveryCharge;

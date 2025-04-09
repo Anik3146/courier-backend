@@ -6,6 +6,7 @@ import { Agent } from "../entities/Agent";
 import { PickupMan } from "../entities/PickupMan";
 import { DeliveryMan } from "../entities/DeliveryMan";
 
+// Create Withdrawal
 export const createWithdrawal = async (
   req: Request,
   res: Response
@@ -13,7 +14,11 @@ export const createWithdrawal = async (
   const { user_id, user_type, amount, withdraw_method } = req.body;
 
   if (!user_id || !user_type || !amount || !withdraw_method) {
-    return res.status(400).json({ message: "All fields are required" });
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required",
+      data: {},
+    });
   }
 
   try {
@@ -38,17 +43,29 @@ export const createWithdrawal = async (
         where: { id: user_id },
       });
     } else {
-      return res.status(400).json({ message: "Invalid user type" });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user type",
+        data: {},
+      });
     }
 
     // Check if user exists
     if (!user) {
-      return res.status(404).json({ message: `${user_type} not found` });
+      return res.status(404).json({
+        success: false,
+        message: `${user_type} not found`,
+        data: {},
+      });
     }
 
     // Check if the user has enough balance
     if (user.balance && user.balance < amount) {
-      return res.status(400).json({ message: "Insufficient balance" });
+      return res.status(400).json({
+        success: false,
+        message: "Insufficient balance",
+        data: {},
+      });
     }
 
     // Create the withdrawal record with status set to 'pending'
@@ -64,13 +81,17 @@ export const createWithdrawal = async (
 
     // Return success response with the 'pending' status
     return res.status(201).json({
+      success: true,
       message: "Withdrawal created successfully, status set to pending",
-      withdrawal,
-      updatedBalance: user.balance,
+      data: { withdrawal, updatedBalance: user.balance },
     });
   } catch (error) {
     console.error("Error creating withdrawal:", error);
-    return res.status(500).json({ message: "Error creating withdrawal" });
+    return res.status(500).json({
+      success: false,
+      message: "Error creating withdrawal",
+      data: {},
+    });
   }
 };
 
@@ -82,7 +103,11 @@ export const completeWithdrawal = async (
   const { withdrawal_id } = req.body;
 
   if (!withdrawal_id) {
-    return res.status(400).json({ message: "Withdrawal ID is required" });
+    return res.status(400).json({
+      success: false,
+      message: "Withdrawal ID is required",
+      data: {},
+    });
   }
 
   try {
@@ -92,7 +117,11 @@ export const completeWithdrawal = async (
     });
 
     if (!withdrawal) {
-      return res.status(404).json({ message: "Withdrawal not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Withdrawal not found",
+        data: {},
+      });
     }
 
     // Update the withdrawal status to 'completed'
@@ -120,9 +149,11 @@ export const completeWithdrawal = async (
     }
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ message: `${withdrawal.user_type} not found` });
+      return res.status(404).json({
+        success: false,
+        message: `${withdrawal.user_type} not found`,
+        data: {},
+      });
     }
 
     // Update the user's balance (assuming the withdrawal amount is being deducted from the balance)
@@ -139,12 +170,16 @@ export const completeWithdrawal = async (
 
     // Return a response confirming the withdrawal completion
     return res.status(200).json({
+      success: true,
       message: "Withdrawal completed successfully",
-      withdrawal,
-      updatedBalance: user.balance,
+      data: { withdrawal, updatedBalance: user.balance },
     });
   } catch (error) {
     console.error("Error completing withdrawal:", error);
-    return res.status(500).json({ message: "Error completing withdrawal" });
+    return res.status(500).json({
+      success: false,
+      message: "Error completing withdrawal",
+      data: {},
+    });
   }
 };

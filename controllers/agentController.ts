@@ -11,7 +11,13 @@ export const createAgent = async (
   const { name, balance, thanaId } = req.body;
 
   if (!name || !thanaId) {
-    return res.status(400).json({ message: "Name and Thana are required" });
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message: "Name and Thana are required",
+        data: {},
+      });
   }
 
   try {
@@ -23,10 +29,16 @@ export const createAgent = async (
     await AppDataSource.manager.save(agent);
     return res
       .status(201)
-      .json({ message: "Agent created successfully", agent });
+      .json({
+        success: true,
+        message: "Agent created successfully",
+        data: agent,
+      });
   } catch (error) {
     console.error("Error creating agent:", error);
-    return res.status(500).json({ message: "Error creating agent" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Error creating agent", data: {} });
   }
 };
 
@@ -39,10 +51,18 @@ export const getAgents = async (
     const agents = await AppDataSource.manager.find(Agent, {
       relations: ["thana"],
     });
-    return res.status(200).json(agents);
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "Agents fetched successfully",
+        data: agents,
+      });
   } catch (error) {
     console.error("Error fetching agents:", error);
-    return res.status(500).json({ message: "Error fetching agents" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Error fetching agents", data: [] });
   }
 };
 
@@ -60,13 +80,23 @@ export const getAgentById = async (
     });
 
     if (!agent) {
-      return res.status(404).json({ message: "Agent not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Agent not found", data: {} });
     }
 
-    return res.status(200).json(agent);
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "Agent fetched successfully",
+        data: agent,
+      });
   } catch (error) {
     console.error("Error fetching agent by ID:", error);
-    return res.status(500).json({ message: "Error fetching agent" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Error fetching agent", data: {} });
   }
 };
 
@@ -84,7 +114,9 @@ export const updateAgent = async (
     });
 
     if (!agent) {
-      return res.status(404).json({ message: "Agent not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Agent not found", data: {} });
     }
 
     agent.name = name || agent.name;
@@ -96,10 +128,16 @@ export const updateAgent = async (
     await AppDataSource.manager.save(agent);
     return res
       .status(200)
-      .json({ message: "Agent updated successfully", agent });
+      .json({
+        success: true,
+        message: "Agent updated successfully",
+        data: agent,
+      });
   } catch (error) {
     console.error("Error updating agent:", error);
-    return res.status(500).json({ message: "Error updating agent" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Error updating agent", data: {} });
   }
 };
 
@@ -116,13 +154,19 @@ export const deleteAgent = async (
     });
 
     if (!agent) {
-      return res.status(404).json({ message: "Agent not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Agent not found", data: {} });
     }
 
     await AppDataSource.manager.remove(agent);
-    return res.status(200).json({ message: "Agent deleted successfully" });
+    return res
+      .status(200)
+      .json({ success: true, message: "Agent deleted successfully", data: {} });
   } catch (error) {
     console.error("Error deleting agent:", error);
-    return res.status(500).json({ message: "Error deleting agent" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Error deleting agent", data: {} });
   }
 };

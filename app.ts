@@ -11,6 +11,7 @@ import withdrawalRoutes from "./routes/withdrawlRouter";
 import agentRoutes from "./routes/agentRouter";
 import productRouter from "./routes/productRouter";
 import cors from "cors";
+import path from "path";
 
 const app = express();
 app.use(cors());
@@ -35,6 +36,9 @@ app.use("/thanas", thanaRoutes);
 app.use("/withdrawals", withdrawalRoutes);
 app.use("/agents", agentRoutes);
 app.use("/products", productRouter);
+
+// Serve static files (e.g., images) from the 'uploads' directory
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Start the server
 const PORT = process.env.PORT || 5000;

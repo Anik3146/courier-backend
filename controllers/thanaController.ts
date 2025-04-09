@@ -1,4 +1,3 @@
-// src/controllers/thanaController.ts
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Thana } from "../entities/Thana";
@@ -11,7 +10,11 @@ export const createThana = async (
   const { thana_name } = req.body;
 
   if (!thana_name) {
-    return res.status(400).json({ message: "Thana name is required" });
+    return res.status(400).json({
+      success: false,
+      message: "Thana name is required",
+      data: {},
+    });
   }
 
   try {
@@ -19,12 +22,18 @@ export const createThana = async (
     thana.thana_name = thana_name;
 
     await AppDataSource.manager.save(thana);
-    return res
-      .status(201)
-      .json({ message: "Thana created successfully", thana });
+    return res.status(201).json({
+      success: true,
+      message: "Thana created successfully",
+      data: thana,
+    });
   } catch (error) {
     console.error("Error creating thana:", error);
-    return res.status(500).json({ message: "Error creating thana" });
+    return res.status(500).json({
+      success: false,
+      message: "Error creating thana",
+      data: {},
+    });
   }
 };
 
@@ -37,10 +46,18 @@ export const getThanas = async (
     const thanas = await AppDataSource.manager.find(Thana, {
       relations: ["agents"], // Optional: To load associated agents if needed
     });
-    return res.status(200).json(thanas);
+    return res.status(200).json({
+      success: true,
+      message: "Thanas fetched successfully",
+      data: thanas,
+    });
   } catch (error) {
     console.error("Error fetching thanas:", error);
-    return res.status(500).json({ message: "Error fetching thanas" });
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching thanas",
+      data: {},
+    });
   }
 };
 
@@ -58,13 +75,25 @@ export const getThanaById = async (
     });
 
     if (!thana) {
-      return res.status(404).json({ message: "Thana not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Thana not found",
+        data: {},
+      });
     }
 
-    return res.status(200).json(thana);
+    return res.status(200).json({
+      success: true,
+      message: "Thana fetched successfully",
+      data: thana,
+    });
   } catch (error) {
     console.error("Error fetching thana by ID:", error);
-    return res.status(500).json({ message: "Error fetching thana" });
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching thana",
+      data: {},
+    });
   }
 };
 
@@ -77,7 +106,11 @@ export const updateThana = async (
   const { thana_name } = req.body;
 
   if (!thana_name) {
-    return res.status(400).json({ message: "Thana name is required" });
+    return res.status(400).json({
+      success: false,
+      message: "Thana name is required",
+      data: {},
+    });
   }
 
   try {
@@ -86,18 +119,28 @@ export const updateThana = async (
     });
 
     if (!thana) {
-      return res.status(404).json({ message: "Thana not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Thana not found",
+        data: {},
+      });
     }
 
     thana.thana_name = thana_name;
 
     await AppDataSource.manager.save(thana);
-    return res
-      .status(200)
-      .json({ message: "Thana updated successfully", thana });
+    return res.status(200).json({
+      success: true,
+      message: "Thana updated successfully",
+      data: thana,
+    });
   } catch (error) {
     console.error("Error updating thana:", error);
-    return res.status(500).json({ message: "Error updating thana" });
+    return res.status(500).json({
+      success: false,
+      message: "Error updating thana",
+      data: {},
+    });
   }
 };
 
@@ -114,13 +157,25 @@ export const deleteThana = async (
     });
 
     if (!thana) {
-      return res.status(404).json({ message: "Thana not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Thana not found",
+        data: {},
+      });
     }
 
     await AppDataSource.manager.remove(thana);
-    return res.status(200).json({ message: "Thana deleted successfully" });
+    return res.status(200).json({
+      success: true,
+      message: "Thana deleted successfully",
+      data: {},
+    });
   } catch (error) {
     console.error("Error deleting thana:", error);
-    return res.status(500).json({ message: "Error deleting thana" });
+    return res.status(500).json({
+      success: false,
+      message: "Error deleting thana",
+      data: {},
+    });
   }
 };

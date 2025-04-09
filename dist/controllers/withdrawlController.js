@@ -16,10 +16,15 @@ const Merchant_1 = require("../entities/Merchant");
 const Agent_1 = require("../entities/Agent");
 const PickupMan_1 = require("../entities/PickupMan");
 const DeliveryMan_1 = require("../entities/DeliveryMan");
+// Create Withdrawal
 const createWithdrawal = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user_id, user_type, amount, withdraw_method } = req.body;
     if (!user_id || !user_type || !amount || !withdraw_method) {
-        return res.status(400).json({ message: "All fields are required" });
+        return res.status(400).json({
+            success: false,
+            message: "All fields are required",
+            data: {},
+        });
     }
     try {
         let user;
@@ -46,15 +51,27 @@ const createWithdrawal = (req, res) => __awaiter(void 0, void 0, void 0, functio
             });
         }
         else {
-            return res.status(400).json({ message: "Invalid user type" });
+            return res.status(400).json({
+                success: false,
+                message: "Invalid user type",
+                data: {},
+            });
         }
         // Check if user exists
         if (!user) {
-            return res.status(404).json({ message: `${user_type} not found` });
+            return res.status(404).json({
+                success: false,
+                message: `${user_type} not found`,
+                data: {},
+            });
         }
         // Check if the user has enough balance
         if (user.balance && user.balance < amount) {
-            return res.status(400).json({ message: "Insufficient balance" });
+            return res.status(400).json({
+                success: false,
+                message: "Insufficient balance",
+                data: {},
+            });
         }
         // Create the withdrawal record with status set to 'pending'
         const withdrawal = new Withdrawl_1.Withdrawal();
@@ -67,14 +84,18 @@ const createWithdrawal = (req, res) => __awaiter(void 0, void 0, void 0, functio
         yield data_source_1.AppDataSource.manager.save(withdrawal);
         // Return success response with the 'pending' status
         return res.status(201).json({
+            success: true,
             message: "Withdrawal created successfully, status set to pending",
-            withdrawal,
-            updatedBalance: user.balance,
+            data: { withdrawal, updatedBalance: user.balance },
         });
     }
     catch (error) {
         console.error("Error creating withdrawal:", error);
-        return res.status(500).json({ message: "Error creating withdrawal" });
+        return res.status(500).json({
+            success: false,
+            message: "Error creating withdrawal",
+            data: {},
+        });
     }
 });
 exports.createWithdrawal = createWithdrawal;
@@ -82,7 +103,11 @@ exports.createWithdrawal = createWithdrawal;
 const completeWithdrawal = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { withdrawal_id } = req.body;
     if (!withdrawal_id) {
-        return res.status(400).json({ message: "Withdrawal ID is required" });
+        return res.status(400).json({
+            success: false,
+            message: "Withdrawal ID is required",
+            data: {},
+        });
     }
     try {
         // Find the withdrawal by its ID
@@ -90,7 +115,11 @@ const completeWithdrawal = (req, res) => __awaiter(void 0, void 0, void 0, funct
             where: { id: withdrawal_id },
         });
         if (!withdrawal) {
-            return res.status(404).json({ message: "Withdrawal not found" });
+            return res.status(404).json({
+                success: false,
+                message: "Withdrawal not found",
+                data: {},
+            });
         }
         // Update the withdrawal status to 'completed'
         withdrawal.status = "completed";
@@ -118,9 +147,11 @@ const completeWithdrawal = (req, res) => __awaiter(void 0, void 0, void 0, funct
             });
         }
         if (!user) {
-            return res
-                .status(404)
-                .json({ message: `${withdrawal.user_type} not found` });
+            return res.status(404).json({
+                success: false,
+                message: `${withdrawal.user_type} not found`,
+                data: {},
+            });
         }
         // Update the user's balance (assuming the withdrawal amount is being deducted from the balance)
         if (user.balance && withdrawal.amount) {
@@ -133,14 +164,18 @@ const completeWithdrawal = (req, res) => __awaiter(void 0, void 0, void 0, funct
         yield data_source_1.AppDataSource.manager.save(user); // Save the updated balance
         // Return a response confirming the withdrawal completion
         return res.status(200).json({
+            success: true,
             message: "Withdrawal completed successfully",
-            withdrawal,
-            updatedBalance: user.balance,
+            data: { withdrawal, updatedBalance: user.balance },
         });
     }
     catch (error) {
         console.error("Error completing withdrawal:", error);
-        return res.status(500).json({ message: "Error completing withdrawal" });
+        return res.status(500).json({
+            success: false,
+            message: "Error completing withdrawal",
+            data: {},
+        });
     }
 });
 exports.completeWithdrawal = completeWithdrawal;

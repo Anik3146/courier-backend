@@ -14,7 +14,9 @@ export const createDeliveryMan = async (
 
   if (!name || balance === undefined || !agentId || !thanaId) {
     return res.status(400).json({
+      success: false,
       message: "All fields (name, balance, agent, thana) are required",
+      data: {},
     });
   }
 
@@ -28,7 +30,11 @@ export const createDeliveryMan = async (
     });
 
     if (!agent || !thana) {
-      return res.status(404).json({ message: "Agent or Thana not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Agent or Thana not found",
+        data: {},
+      });
     }
 
     const deliveryMan = new DeliveryMan();
@@ -39,12 +45,18 @@ export const createDeliveryMan = async (
 
     // Save the new delivery man to the database
     await AppDataSource.manager.save(deliveryMan);
-    return res
-      .status(201)
-      .json({ message: "Delivery Man created successfully", deliveryMan });
+    return res.status(201).json({
+      success: true,
+      message: "Delivery Man created successfully",
+      data: deliveryMan,
+    });
   } catch (error) {
     console.error("Error creating delivery man:", error);
-    return res.status(500).json({ message: "Error creating delivery man" });
+    return res.status(500).json({
+      success: false,
+      message: "Error creating delivery man",
+      data: {},
+    });
   }
 };
 
@@ -57,10 +69,18 @@ export const getDeliveryMen = async (
     const deliveryMen = await AppDataSource.manager.find(DeliveryMan, {
       relations: ["agent", "thana"], // Fetch relations (agent, thana)
     });
-    return res.status(200).json(deliveryMen);
+    return res.status(200).json({
+      success: true,
+      message: "Delivery Men fetched successfully",
+      data: deliveryMen,
+    });
   } catch (error) {
     console.error("Error fetching delivery men:", error);
-    return res.status(500).json({ message: "Error fetching delivery men" });
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching delivery men",
+      data: {},
+    });
   }
 };
 
@@ -78,13 +98,25 @@ export const getDeliveryManById = async (
     });
 
     if (!deliveryMan) {
-      return res.status(404).json({ message: "Delivery Man not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Delivery Man not found",
+        data: {},
+      });
     }
 
-    return res.status(200).json(deliveryMan);
+    return res.status(200).json({
+      success: true,
+      message: "Delivery Man fetched successfully",
+      data: deliveryMan,
+    });
   } catch (error) {
     console.error("Error fetching delivery man by ID:", error);
-    return res.status(500).json({ message: "Error fetching delivery man" });
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching delivery man",
+      data: {},
+    });
   }
 };
 
@@ -98,7 +130,9 @@ export const updateDeliveryMan = async (
 
   if (!name || balance === undefined || !agentId || !thanaId) {
     return res.status(400).json({
+      success: false,
       message: "All fields (name, balance, agent, thana) are required",
+      data: {},
     });
   }
 
@@ -108,7 +142,11 @@ export const updateDeliveryMan = async (
     });
 
     if (!deliveryMan) {
-      return res.status(404).json({ message: "Delivery Man not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Delivery Man not found",
+        data: {},
+      });
     }
 
     // Find associated Agent and Thana
@@ -120,7 +158,11 @@ export const updateDeliveryMan = async (
     });
 
     if (!agent || !thana) {
-      return res.status(404).json({ message: "Agent or Thana not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Agent or Thana not found",
+        data: {},
+      });
     }
 
     // Update delivery man fields
@@ -131,12 +173,18 @@ export const updateDeliveryMan = async (
 
     // Save the updated delivery man to the database
     await AppDataSource.manager.save(deliveryMan);
-    return res
-      .status(200)
-      .json({ message: "Delivery Man updated successfully", deliveryMan });
+    return res.status(200).json({
+      success: true,
+      message: "Delivery Man updated successfully",
+      data: deliveryMan,
+    });
   } catch (error) {
     console.error("Error updating delivery man:", error);
-    return res.status(500).json({ message: "Error updating delivery man" });
+    return res.status(500).json({
+      success: false,
+      message: "Error updating delivery man",
+      data: {},
+    });
   }
 };
 
@@ -153,16 +201,26 @@ export const deleteDeliveryMan = async (
     });
 
     if (!deliveryMan) {
-      return res.status(404).json({ message: "Delivery Man not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Delivery Man not found",
+        data: {},
+      });
     }
 
     // Delete the delivery man from the database
     await AppDataSource.manager.remove(deliveryMan);
-    return res
-      .status(200)
-      .json({ message: "Delivery Man deleted successfully" });
+    return res.status(200).json({
+      success: true,
+      message: "Delivery Man deleted successfully",
+      data: {},
+    });
   } catch (error) {
     console.error("Error deleting delivery man:", error);
-    return res.status(500).json({ message: "Error deleting delivery man" });
+    return res.status(500).json({
+      success: false,
+      message: "Error deleting delivery man",
+      data: {},
+    });
   }
 };

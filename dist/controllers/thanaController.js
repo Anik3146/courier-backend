@@ -16,19 +16,29 @@ const Thana_1 = require("../entities/Thana");
 const createThana = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { thana_name } = req.body;
     if (!thana_name) {
-        return res.status(400).json({ message: "Thana name is required" });
+        return res.status(400).json({
+            success: false,
+            message: "Thana name is required",
+            data: {},
+        });
     }
     try {
         const thana = new Thana_1.Thana();
         thana.thana_name = thana_name;
         yield data_source_1.AppDataSource.manager.save(thana);
-        return res
-            .status(201)
-            .json({ message: "Thana created successfully", thana });
+        return res.status(201).json({
+            success: true,
+            message: "Thana created successfully",
+            data: thana,
+        });
     }
     catch (error) {
         console.error("Error creating thana:", error);
-        return res.status(500).json({ message: "Error creating thana" });
+        return res.status(500).json({
+            success: false,
+            message: "Error creating thana",
+            data: {},
+        });
     }
 });
 exports.createThana = createThana;
@@ -38,11 +48,19 @@ const getThanas = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const thanas = yield data_source_1.AppDataSource.manager.find(Thana_1.Thana, {
             relations: ["agents"], // Optional: To load associated agents if needed
         });
-        return res.status(200).json(thanas);
+        return res.status(200).json({
+            success: true,
+            message: "Thanas fetched successfully",
+            data: thanas,
+        });
     }
     catch (error) {
         console.error("Error fetching thanas:", error);
-        return res.status(500).json({ message: "Error fetching thanas" });
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching thanas",
+            data: {},
+        });
     }
 });
 exports.getThanas = getThanas;
@@ -55,13 +73,25 @@ const getThanaById = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             relations: ["agents"], // Optional: To load associated agents if needed
         });
         if (!thana) {
-            return res.status(404).json({ message: "Thana not found" });
+            return res.status(404).json({
+                success: false,
+                message: "Thana not found",
+                data: {},
+            });
         }
-        return res.status(200).json(thana);
+        return res.status(200).json({
+            success: true,
+            message: "Thana fetched successfully",
+            data: thana,
+        });
     }
     catch (error) {
         console.error("Error fetching thana by ID:", error);
-        return res.status(500).json({ message: "Error fetching thana" });
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching thana",
+            data: {},
+        });
     }
 });
 exports.getThanaById = getThanaById;
@@ -70,24 +100,38 @@ const updateThana = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     const { id } = req.params;
     const { thana_name } = req.body;
     if (!thana_name) {
-        return res.status(400).json({ message: "Thana name is required" });
+        return res.status(400).json({
+            success: false,
+            message: "Thana name is required",
+            data: {},
+        });
     }
     try {
         const thana = yield data_source_1.AppDataSource.manager.findOne(Thana_1.Thana, {
             where: { id: Number(id) },
         });
         if (!thana) {
-            return res.status(404).json({ message: "Thana not found" });
+            return res.status(404).json({
+                success: false,
+                message: "Thana not found",
+                data: {},
+            });
         }
         thana.thana_name = thana_name;
         yield data_source_1.AppDataSource.manager.save(thana);
-        return res
-            .status(200)
-            .json({ message: "Thana updated successfully", thana });
+        return res.status(200).json({
+            success: true,
+            message: "Thana updated successfully",
+            data: thana,
+        });
     }
     catch (error) {
         console.error("Error updating thana:", error);
-        return res.status(500).json({ message: "Error updating thana" });
+        return res.status(500).json({
+            success: false,
+            message: "Error updating thana",
+            data: {},
+        });
     }
 });
 exports.updateThana = updateThana;
@@ -99,14 +143,26 @@ const deleteThana = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             where: { id: Number(id) },
         });
         if (!thana) {
-            return res.status(404).json({ message: "Thana not found" });
+            return res.status(404).json({
+                success: false,
+                message: "Thana not found",
+                data: {},
+            });
         }
         yield data_source_1.AppDataSource.manager.remove(thana);
-        return res.status(200).json({ message: "Thana deleted successfully" });
+        return res.status(200).json({
+            success: true,
+            message: "Thana deleted successfully",
+            data: {},
+        });
     }
     catch (error) {
         console.error("Error deleting thana:", error);
-        return res.status(500).json({ message: "Error deleting thana" });
+        return res.status(500).json({
+            success: false,
+            message: "Error deleting thana",
+            data: {},
+        });
     }
 });
 exports.deleteThana = deleteThana;
