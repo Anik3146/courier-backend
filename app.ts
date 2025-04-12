@@ -11,6 +11,8 @@ import withdrawalRoutes from "./routes/withdrawlRouter";
 import agentRoutes from "./routes/agentRouter";
 import productRouter from "./routes/productRouter";
 import pricingPlanRoutes from "./routes/pricingPlanRouter";
+import storeRoutes from "./routes/storeRouter";
+
 import cors from "cors";
 import path from "path";
 
@@ -38,6 +40,7 @@ app.use("/withdrawals", withdrawalRoutes);
 app.use("/agents", agentRoutes);
 app.use("/products", productRouter);
 app.use("/pricing-plan", pricingPlanRoutes);
+app.use("/stores", storeRoutes);
 
 // Serve static files (e.g., images) from the 'uploads' directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

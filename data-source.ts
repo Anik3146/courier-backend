@@ -11,6 +11,7 @@ import { Withdrawal } from "./entities/Withdrawl";
 import { DeliveryCharge } from "./entities/DeliveryCharges";
 import { Product } from "./entities/Products";
 import { PricingPlan } from "./entities/PricingPlan";
+import { Store } from "./entities/Store";
 // Add other entities as required
 dotenv.config();
 export const AppDataSource = new DataSource({
@@ -31,6 +32,7 @@ export const AppDataSource = new DataSource({
     DeliveryCharge,
     Product,
     PricingPlan,
+    Store,
   ], // Include all entities
   synchronize: true,
   logging: true,
