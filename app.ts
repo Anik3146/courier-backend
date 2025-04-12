@@ -12,6 +12,9 @@ import agentRoutes from "./routes/agentRouter";
 import productRouter from "./routes/productRouter";
 import pricingPlanRoutes from "./routes/pricingPlanRouter";
 import storeRoutes from "./routes/storeRouter";
+import districtRoutes from "./routes/districtRouter";
+import zoneRoutes from "./routes/zoneRouter";
+import areaRoutes from "./routes/areaRouter";
 
 import cors from "cors";
 import path from "path";
@@ -30,6 +33,7 @@ AppDataSource.initialize()
   });
 
 // Use the routes
+
 app.use("/merchant", merchantRouter);
 app.use("/deliveries", deliveryRouter);
 app.use("/delivery-charges", deliveryChargesRoutes);
@@ -41,9 +45,16 @@ app.use("/agents", agentRoutes);
 app.use("/products", productRouter);
 app.use("/pricing-plan", pricingPlanRoutes);
 app.use("/stores", storeRoutes);
-
+app.use("/districts", districtRoutes);
+app.use("/zones", zoneRoutes);
+app.use("/areas", areaRoutes);
 // Serve static files (e.g., images) from the 'uploads' directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/", (req: any, res: any) => {
+  return res
+    .status(200)
+    .json({ message: "This is the Courier BD application backend" });
+});
 
 // Start the server
 const PORT = process.env.PORT || 5000;

@@ -17,6 +17,9 @@ const agentRouter_1 = __importDefault(require("./routes/agentRouter"));
 const productRouter_1 = __importDefault(require("./routes/productRouter"));
 const pricingPlanRouter_1 = __importDefault(require("./routes/pricingPlanRouter"));
 const storeRouter_1 = __importDefault(require("./routes/storeRouter"));
+const districtRouter_1 = __importDefault(require("./routes/districtRouter"));
+const zoneRouter_1 = __importDefault(require("./routes/zoneRouter"));
+const areaRouter_1 = __importDefault(require("./routes/areaRouter"));
 const cors_1 = __importDefault(require("cors"));
 const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
@@ -42,8 +45,16 @@ app.use("/agents", agentRouter_1.default);
 app.use("/products", productRouter_1.default);
 app.use("/pricing-plan", pricingPlanRouter_1.default);
 app.use("/stores", storeRouter_1.default);
+app.use("/districts", districtRouter_1.default);
+app.use("/zones", zoneRouter_1.default);
+app.use("/areas", areaRouter_1.default);
 // Serve static files (e.g., images) from the 'uploads' directory
 app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "uploads")));
+app.use("/", (req, res) => {
+    return res
+        .status(200)
+        .json({ message: "This is the Courier BD application backend" });
+});
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
