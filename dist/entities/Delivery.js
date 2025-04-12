@@ -91,9 +91,28 @@ __decorate([
     __metadata("design:type", String)
 ], Delivery.prototype, "thana", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ default: "Pending" }),
+    (0, typeorm_1.Column)({
+        type: "enum",
+        enum: [
+            "Pending",
+            "Picked Up",
+            "At Sorting",
+            "In Transit",
+            "At Delivery Hub",
+            "Assigned to Delivery",
+            "On Hold",
+            "Delivered",
+            "Returned",
+            "Reverse Delivery",
+        ],
+        default: "Pending",
+    }),
     __metadata("design:type", String)
 ], Delivery.prototype, "delivery_status", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: "Unpaid" }),
+    __metadata("design:type", String)
+], Delivery.prototype, "payment_status", void 0);
 __decorate([
     (0, typeorm_1.Column)({ default: "Pending" }),
     __metadata("design:type", String)

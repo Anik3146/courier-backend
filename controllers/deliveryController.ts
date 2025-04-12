@@ -8,6 +8,8 @@ import { PickupMan } from "../entities/PickupMan";
 import { DeliveryMan } from "../entities/DeliveryMan";
 import { Thana } from "../entities/Thana";
 import { DeliveryCharge } from "../entities/DeliveryCharges";
+import { In } from "typeorm";
+import { Invoice } from "../entities/Invoice";
 
 // Create a new delivery
 export const createDelivery = (req: Request, res: Response) => {
@@ -31,28 +33,30 @@ export const createDelivery = (req: Request, res: Response) => {
       zilla,
       thana,
       delivery_charge,
+      payment_status, // optional in body, default below
     } = req.body;
 
-    // Basic validation
     if (!store_name || !product_type || !recipient_name || !recipient_phone) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Missing required fields", data: {} });
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields",
+        data: {},
+      });
     }
 
     try {
-      // Find the merchant in the database
       const merchant = await AppDataSource.manager.findOne(Merchant, {
         where: { id: merchant_id },
       });
 
       if (!merchant) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Merchant not found", data: {} });
+        return res.status(404).json({
+          success: false,
+          message: "Merchant not found",
+          data: {},
+        });
       }
 
-      // Create a new delivery
       const delivery = new Delivery();
       delivery.store_name = store_name;
       delivery.product_type = product_type;
@@ -72,32 +76,55 @@ export const createDelivery = (req: Request, res: Response) => {
       delivery.zilla = zilla;
       delivery.thana = thana;
       delivery.delivery_charge = delivery_charge;
-
-      // Set default status to "Pending"
       delivery.delivery_status = "Pending";
       delivery.pickup_status = "Pending";
+      delivery.payment_status = payment_status || "Unpaid"; // default
 
-      // Save the new delivery to the database
-      await AppDataSource.manager.save(delivery);
+      // Save delivery
+      const savedDelivery = await AppDataSource.manager.save(delivery);
+
+      // Create corresponding invoice
+      const codFee = Number(savedDelivery.amount_to_collect || 0) * 0.02; // 2% COD fee
+      const collectedAmount = Number(savedDelivery.amount_to_collect || 0);
+      const receivableAmount =
+        collectedAmount - (Number(delivery_charge) + codFee);
+
+      const invoice = new Invoice();
+      invoice.delivery = savedDelivery;
+      invoice.total_amount = Number(price);
+      invoice.delivery_charge = Number(delivery_charge);
+      invoice.cod_fee = codFee;
+      invoice.collected_amount = collectedAmount;
+      invoice.receivable_amount = receivableAmount;
+      invoice.payment_status = "Processing";
+
+      await AppDataSource.manager.save(invoice);
+
       return res.status(201).json({
         success: true,
-        message: "Delivery created successfully",
-        data: delivery,
+        message: "Delivery and invoice created successfully",
+        data: {
+          delivery: savedDelivery,
+          invoice,
+        },
       });
     } catch (error) {
       console.error("Error saving delivery:", error);
-      return res
-        .status(500)
-        .json({ success: false, message: "Error saving delivery", data: {} });
+      return res.status(500).json({
+        success: false,
+        message: "Error saving delivery",
+        data: {},
+      });
     }
   };
 
-  // Call the inner async function
   createNewDelivery().catch((err) => {
     console.error("Unexpected error:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Unexpected error occurred", data: {} });
+    return res.status(500).json({
+      success: false,
+      message: "Unexpected error occurred",
+      data: {},
+    });
   });
 };
 
@@ -257,6 +284,110 @@ export const updateDeliveryStatus = async (
       success: false,
       message: "Error updating delivery status",
       data: {},
+    });
+  }
+};
+
+// 1. Get All Deliveries
+export const getAllDeliveries = async (_req: Request, res: Response) => {
+  try {
+    const deliveries = await AppDataSource.manager.find(Delivery);
+    return res.json({ success: true, data: deliveries });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// 2. Get Active Deliveries
+export const getActiveDeliveries = async (_req: Request, res: Response) => {
+  try {
+    const activeStatuses = [
+      "At Sorting",
+      "In Transit",
+      "At Delivery Hub",
+      "Assigned to Delivery",
+      "On Hold",
+    ];
+    const deliveries = await AppDataSource.manager.find(Delivery, {
+      where: {
+        delivery_status: In(activeStatuses),
+      },
+    });
+    return res.json({ success: true, data: deliveries });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// 3. Get Returned Deliveries
+export const getReturnedDeliveries = async (_req: Request, res: Response) => {
+  try {
+    const deliveries = await AppDataSource.manager.find(Delivery, {
+      where: { delivery_status: "Returned" },
+    });
+    return res.json({ success: true, data: deliveries });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// 4. Get Reverse Deliveries
+export const getReverseDeliveries = async (_req: Request, res: Response) => {
+  try {
+    const deliveries = await AppDataSource.manager.find(Delivery, {
+      where: { delivery_status: "Reverse Delivery" },
+    });
+    return res.json({ success: true, data: deliveries });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// ✅ Percentage of Deliveries by Stage (based on total deliveries)
+export const getDeliveryStageBreakdown = async (
+  _req: Request,
+  res: Response
+) => {
+  try {
+    const stages = [
+      "At Sorting",
+      "In Transit",
+      "At Delivery Hub",
+      "Assigned to Delivery",
+      "Returned",
+    ];
+
+    // Get the total number of deliveries
+    const totalDeliveries = await AppDataSource.manager.count(Delivery);
+
+    if (totalDeliveries === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No deliveries found",
+        data: {},
+      });
+    }
+
+    const breakdown: Record<string, string> = {};
+
+    for (const stage of stages) {
+      const count = await AppDataSource.manager.count(Delivery, {
+        where: { delivery_status: stage },
+      });
+
+      breakdown[stage] = ((count / totalDeliveries) * 100).toFixed(2) + "%";
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Delivery percentage by stage (based on total deliveries)",
+      data: breakdown,
+    });
+  } catch (err) {
+    console.error("Error calculating delivery breakdown:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
     });
   }
 };

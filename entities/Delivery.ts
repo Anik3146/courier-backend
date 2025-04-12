@@ -66,8 +66,26 @@ export class Delivery {
   @Column()
   thana?: string;
 
-  @Column({ default: "Pending" })
-  delivery_status?: string;
+  @Column({
+    type: "enum",
+    enum: [
+      "Pending",
+      "Picked Up",
+      "At Sorting",
+      "In Transit",
+      "At Delivery Hub",
+      "Assigned to Delivery",
+      "On Hold",
+      "Delivered",
+      "Returned",
+      "Reverse Delivery",
+    ],
+    default: "Pending",
+  })
+  delivery_status!: string;
+
+  @Column({ default: "Unpaid" })
+  payment_status?: "Paid" | "Unpaid";
 
   @Column({ default: "Pending" })
   pickup_status?: string;

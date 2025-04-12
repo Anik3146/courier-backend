@@ -15,6 +15,7 @@ import storeRoutes from "./routes/storeRouter";
 import districtRoutes from "./routes/districtRouter";
 import zoneRoutes from "./routes/zoneRouter";
 import areaRoutes from "./routes/areaRouter";
+import invoiceRoutes from "./routes/invoiceRouter";
 
 import cors from "cors";
 import path from "path";
@@ -48,6 +49,7 @@ app.use("/stores", storeRoutes);
 app.use("/districts", districtRoutes);
 app.use("/zones", zoneRoutes);
 app.use("/areas", areaRoutes);
+app.use("/invoices", invoiceRoutes);
 // Serve static files (e.g., images) from the 'uploads' directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/", (req: any, res: any) => {

@@ -33,4 +33,54 @@ router.put("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(500).json({ message: "An unexpected error occurred." });
     }
 }));
+// Get all deliveries
+router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield (0, deliveryController_1.getAllDeliveries)(req, res);
+    }
+    catch (error) {
+        console.error("Error in getAllDeliveries:", error);
+        res.status(500).json({ message: "An unexpected error occurred." });
+    }
+}));
+// Get active deliveries (statuses: At Sorting, In Transit, etc.)
+router.get("/active", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield (0, deliveryController_1.getActiveDeliveries)(req, res);
+    }
+    catch (error) {
+        console.error("Error in getActiveDeliveries:", error);
+        res.status(500).json({ message: "An unexpected error occurred." });
+    }
+}));
+// Get returned deliveries
+router.get("/returned", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield (0, deliveryController_1.getReturnedDeliveries)(req, res);
+    }
+    catch (error) {
+        console.error("Error in getReturnedDeliveries:", error);
+        res.status(500).json({ message: "An unexpected error occurred." });
+    }
+}));
+// Get reverse deliveries
+router.get("/reverse", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield (0, deliveryController_1.getReverseDeliveries)(req, res);
+    }
+    catch (error) {
+        console.error("Error in getReverseDeliveries:", error);
+        res.status(500).json({ message: "An unexpected error occurred." });
+    }
+}));
+// Get return percentage breakdown
+router.get("/returns/percentage", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield (0, deliveryController_1.getDeliveryStageBreakdown)(req, res);
+    }
+    catch (error) {
+        console.error("Error in getReturnBreakdown:", error);
+        res.status(500).json({ message: "An unexpected error occurred." });
+    }
+}));
 exports.default = router;
