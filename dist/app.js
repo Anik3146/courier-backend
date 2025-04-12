@@ -15,6 +15,7 @@ const thanaRouter_1 = __importDefault(require("./routes/thanaRouter"));
 const withdrawlRouter_1 = __importDefault(require("./routes/withdrawlRouter"));
 const agentRouter_1 = __importDefault(require("./routes/agentRouter"));
 const productRouter_1 = __importDefault(require("./routes/productRouter"));
+const pricingPlanRouter_1 = __importDefault(require("./routes/pricingPlanRouter"));
 const cors_1 = __importDefault(require("cors"));
 const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
@@ -38,6 +39,7 @@ app.use("/thanas", thanaRouter_1.default);
 app.use("/withdrawals", withdrawlRouter_1.default);
 app.use("/agents", agentRouter_1.default);
 app.use("/products", productRouter_1.default);
+app.use("/pricing-plan", pricingPlanRouter_1.default);
 // Serve static files (e.g., images) from the 'uploads' directory
 app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "uploads")));
 // Start the server

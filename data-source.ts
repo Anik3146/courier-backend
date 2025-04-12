@@ -10,6 +10,7 @@ import { Thana } from "./entities/Thana";
 import { Withdrawal } from "./entities/Withdrawl";
 import { DeliveryCharge } from "./entities/DeliveryCharges";
 import { Product } from "./entities/Products";
+import { PricingPlan } from "./entities/PricingPlan";
 // Add other entities as required
 dotenv.config();
 export const AppDataSource = new DataSource({
@@ -29,6 +30,7 @@ export const AppDataSource = new DataSource({
     Withdrawal,
     DeliveryCharge,
     Product,
+    PricingPlan,
   ], // Include all entities
   synchronize: true,
   logging: true,
