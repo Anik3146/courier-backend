@@ -9,6 +9,7 @@ import { Thana } from "./Thana";
 import { PickupMan } from "./PickupMan";
 import { DeliveryMan } from "./DeliveryMan";
 import { Delivery } from "./Delivery";
+import { Message } from "./Message";
 
 @Entity()
 export class Agent {
@@ -32,4 +33,10 @@ export class Agent {
 
   @OneToMany(() => Delivery, (delivery) => delivery.agent)
   deliveries?: Delivery[];
+
+  @OneToMany(() => Message, (message) => message.agentSender)
+  sentMessages?: Message[];
+
+  @OneToMany(() => Message, (message) => message.agentReceiver)
+  receivedMessages?: Message[];
 }

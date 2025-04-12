@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { Delivery } from "./Delivery";
+import { Message } from "./Message";
 
 @Entity()
 export class Merchant {
@@ -26,4 +27,10 @@ export class Merchant {
 
   @OneToMany(() => Delivery, (delivery) => delivery.merchant)
   deliveries?: Delivery[];
+
+  @OneToMany(() => Message, (message) => message.merchantSender)
+  sentMessages?: Message[];
+
+  @OneToMany(() => Message, (message) => message.merchantReceiver)
+  receivedMessages?: Message[];
 }

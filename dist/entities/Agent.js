@@ -15,6 +15,7 @@ const Thana_1 = require("./Thana");
 const PickupMan_1 = require("./PickupMan");
 const DeliveryMan_1 = require("./DeliveryMan");
 const Delivery_1 = require("./Delivery");
+const Message_1 = require("./Message");
 let Agent = class Agent {
 };
 exports.Agent = Agent;
@@ -46,6 +47,14 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => Delivery_1.Delivery, (delivery) => delivery.agent),
     __metadata("design:type", Array)
 ], Agent.prototype, "deliveries", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Message_1.Message, (message) => message.agentSender),
+    __metadata("design:type", Array)
+], Agent.prototype, "sentMessages", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Message_1.Message, (message) => message.agentReceiver),
+    __metadata("design:type", Array)
+], Agent.prototype, "receivedMessages", void 0);
 exports.Agent = Agent = __decorate([
     (0, typeorm_1.Entity)()
 ], Agent);

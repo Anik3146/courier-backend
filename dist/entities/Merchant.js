@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Merchant = void 0;
 const typeorm_1 = require("typeorm");
 const Delivery_1 = require("./Delivery");
+const Message_1 = require("./Message");
 let Merchant = class Merchant {
 };
 exports.Merchant = Merchant;
@@ -47,6 +48,14 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => Delivery_1.Delivery, (delivery) => delivery.merchant),
     __metadata("design:type", Array)
 ], Merchant.prototype, "deliveries", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Message_1.Message, (message) => message.merchantSender),
+    __metadata("design:type", Array)
+], Merchant.prototype, "sentMessages", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Message_1.Message, (message) => message.merchantReceiver),
+    __metadata("design:type", Array)
+], Merchant.prototype, "receivedMessages", void 0);
 exports.Merchant = Merchant = __decorate([
     (0, typeorm_1.Entity)()
 ], Merchant);

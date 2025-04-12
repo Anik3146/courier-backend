@@ -13,6 +13,7 @@ exports.PickupMan = void 0;
 const typeorm_1 = require("typeorm");
 const Agent_1 = require("./Agent");
 const Thana_1 = require("./Thana");
+const Message_1 = require("./Message");
 let PickupMan = class PickupMan {
 };
 exports.PickupMan = PickupMan;
@@ -36,6 +37,14 @@ __decorate([
     (0, typeorm_1.ManyToOne)(() => Thana_1.Thana, (thana) => thana.agents),
     __metadata("design:type", Thana_1.Thana)
 ], PickupMan.prototype, "thana", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Message_1.Message, (message) => message.pickupManSender),
+    __metadata("design:type", Array)
+], PickupMan.prototype, "sentMessages", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Message_1.Message, (message) => message.pickupManReceiver),
+    __metadata("design:type", Array)
+], PickupMan.prototype, "receivedMessages", void 0);
 exports.PickupMan = PickupMan = __decorate([
     (0, typeorm_1.Entity)()
 ], PickupMan);

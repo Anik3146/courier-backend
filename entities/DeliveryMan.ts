@@ -1,6 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+} from "typeorm";
 import { Agent } from "./Agent";
 import { Thana } from "./Thana";
+import { Message } from "./Message";
 
 @Entity()
 export class DeliveryMan {
@@ -18,4 +25,10 @@ export class DeliveryMan {
 
   @ManyToOne(() => Thana, (thana) => thana.agents)
   thana?: Thana;
+
+  @OneToMany(() => Message, (message) => message.deliveryManSender)
+  sentMessages?: Message[];
+
+  @OneToMany(() => Message, (message) => message.deliveryManReceiver)
+  receivedMessages?: Message[];
 }
