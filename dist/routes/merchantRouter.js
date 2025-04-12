@@ -11,4 +11,6 @@ router.post("/register", merchantController_1.registerMerchant);
 router.post("/signin", merchantController_1.signInMerchant);
 // Get Merchant by ID (new route)
 router.get("/:id", Authentication_1.authenticateToken, merchantController_1.getMerchantById);
+//update merchant by id
+router.put("/:id", Authentication_1.authenticateToken, merchantController_1.updateMerchantById);
 exports.default = router;

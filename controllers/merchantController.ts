@@ -4,12 +4,12 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { AppDataSource } from "../data-source"; // Assume AppDataSource is your DB connection
 import { Merchant } from "../entities/Merchant";
+import { Not } from "typeorm";
 
 const JWT_SECRET = process.env.JWT_SECRET || "courier_bd_app";
 
 // Register Merchant
 export const registerMerchant = (req: Request, res: Response) => {
-  // The outer function is synchronous
   const register = async () => {
     const { company_name, owner_name, mobile_number, email, password } =
       req.body;
@@ -23,15 +23,17 @@ export const registerMerchant = (req: Request, res: Response) => {
     }
 
     try {
-      // Find if the email already exists
+      // Check for existing email or mobile number
       const existingMerchant = await AppDataSource.manager.findOne(Merchant, {
-        where: { email },
+        where: [{ email }, { mobile_number }],
       });
 
       if (existingMerchant) {
+        const duplicateField =
+          existingMerchant.email === email ? "Email" : "Mobile number";
         return res.status(400).json({
           success: false,
-          message: "Email is already in use",
+          message: `${duplicateField} is already in use`,
           data: null,
         });
       }
@@ -46,8 +48,9 @@ export const registerMerchant = (req: Request, res: Response) => {
       merchant.email = email;
       merchant.password = hashedPassword;
 
-      // Try saving the merchant to the DB
+      // Save to database
       await AppDataSource.manager.save(merchant);
+
       return res.status(201).json({
         success: true,
         message: "Merchant registered successfully",
@@ -68,7 +71,7 @@ export const registerMerchant = (req: Request, res: Response) => {
     }
   };
 
-  // Call the inner async function
+  // Call the async function
   register().catch((err) => {
     console.error("Unexpected error:", err);
     return res.status(500).json({
@@ -125,10 +128,13 @@ export const signInMerchant = (req: Request, res: Response) => {
         { expiresIn: "1h" }
       );
 
+      // Exclude password from the response
+      const { password: _password, ...user } = merchant;
+
       return res.status(200).json({
         success: true,
         message: "Sign-in successful",
-        data: { token },
+        data: { token, user },
       });
     } catch (error) {
       console.error("Error during sign-in:", error);
@@ -217,6 +223,100 @@ export const getMerchantById = (req: Request, res: Response) => {
 
   // Call the inner async function
   getMerchant().catch((err) => {
+    console.error("Unexpected error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Unexpected error occurred",
+      data: null,
+    });
+  });
+};
+
+// Update Merchant by ID
+export const updateMerchantById = (req: Request, res: Response) => {
+  const update = async () => {
+    const merchantId = Number(req.params.id);
+
+    if (merchantId != req.user?.id)
+      return res.status(400).json({
+        success: false,
+        message: "Token or id is not matched",
+        data: null,
+      });
+
+    const { company_name, owner_name, mobile_number, email, password } =
+      req.body;
+
+    if (!merchantId) {
+      return res.status(400).json({
+        success: false,
+        message: "Merchant ID is required",
+        data: null,
+      });
+    }
+
+    try {
+      // Find the merchant
+      const merchant = await AppDataSource.manager.findOne(Merchant, {
+        where: { id: merchantId },
+      });
+
+      if (!merchant) {
+        return res.status(404).json({
+          success: false,
+          message: "Merchant not found",
+          data: null,
+        });
+      }
+
+      // Check for duplicate email or mobile_number (excluding current merchant)
+      const duplicate = await AppDataSource.manager.findOne(Merchant, {
+        where: [
+          { email, id: Not(merchantId) },
+          { mobile_number, id: Not(merchantId) },
+        ],
+      });
+
+      if (duplicate) {
+        const duplicateField =
+          duplicate.email === email ? "Email" : "Mobile number";
+        return res.status(400).json({
+          success: false,
+          message: `${duplicateField} is already in use`,
+          data: null,
+        });
+      }
+
+      // Update fields if they are provided
+      if (company_name) merchant.company_name = company_name;
+      if (owner_name) merchant.owner_name = owner_name;
+      if (mobile_number) merchant.mobile_number = mobile_number;
+      if (email) merchant.email = email;
+      if (password) {
+        merchant.password = await bcrypt.hash(password, 10);
+      }
+
+      await AppDataSource.manager.save(merchant);
+
+      // Exclude password from response
+      const { password: _pw, ...sanitizedMerchant } = merchant;
+
+      return res.status(200).json({
+        success: true,
+        message: "Merchant updated successfully",
+        data: sanitizedMerchant,
+      });
+    } catch (error) {
+      console.error("Error updating merchant:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Error updating merchant",
+        data: null,
+      });
+    }
+  };
+
+  update().catch((err) => {
     console.error("Unexpected error:", err);
     return res.status(500).json({
       success: false,

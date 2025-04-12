@@ -4,6 +4,7 @@ import {
   getMerchantById,
   registerMerchant,
   signInMerchant,
+  updateMerchantById,
 } from "../controllers/merchantController";
 import { authenticateToken } from "../middleware/Authentication";
 
@@ -17,5 +18,8 @@ router.post("/signin", signInMerchant);
 
 // Get Merchant by ID (new route)
 router.get("/:id", authenticateToken, getMerchantById);
+
+//update merchant by id
+router.put("/:id", authenticateToken, updateMerchantById);
 
 export default router;
