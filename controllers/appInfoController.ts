@@ -8,39 +8,38 @@ import { DeliveryMan } from "../entities/DeliveryMan";
 import { Request, Response } from "express";
 import { Repository } from "typeorm";
 
-// ✅ Union type for all user entities
 type UserEntity = Agent | Operator | Merchant | PickupMan | DeliveryMan;
 
-// ✅ Utility function to return proper repository and relation key
 const getEntityRepoAndRelation = (
   userType: string
-): { repo: Repository<UserEntity>; relationKey: string } => {
+): {
+  repo: Repository<UserEntity>;
+  relationKey: keyof AppInfo;
+} => {
   switch (userType.toLowerCase()) {
     case "agent":
       return {
-        repo: AppDataSource.getRepository(Agent) as Repository<UserEntity>,
+        repo: AppDataSource.getRepository(Agent),
         relationKey: "agent",
       };
     case "operator":
       return {
-        repo: AppDataSource.getRepository(Operator) as Repository<UserEntity>,
+        repo: AppDataSource.getRepository(Operator),
         relationKey: "operator",
       };
     case "merchant":
       return {
-        repo: AppDataSource.getRepository(Merchant) as Repository<UserEntity>,
+        repo: AppDataSource.getRepository(Merchant),
         relationKey: "merchant",
       };
     case "pickupman":
       return {
-        repo: AppDataSource.getRepository(PickupMan) as Repository<UserEntity>,
+        repo: AppDataSource.getRepository(PickupMan),
         relationKey: "pickupMan",
       };
     case "deliveryman":
       return {
-        repo: AppDataSource.getRepository(
-          DeliveryMan
-        ) as Repository<UserEntity>,
+        repo: AppDataSource.getRepository(DeliveryMan),
         relationKey: "deliveryMan",
       };
     default:
@@ -48,12 +47,12 @@ const getEntityRepoAndRelation = (
   }
 };
 
-// ✅ Main controller function
+// ✅ Add or Update App Info for User
 export const addOrUpdateAppInfoForEntity = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const appInfoRepo = AppDataSource.getRepository(AppInfo); // Repo for AppInfo
+  const appInfoRepo = AppDataSource.getRepository(AppInfo);
 
   try {
     const {
@@ -81,13 +80,10 @@ export const addOrUpdateAppInfoForEntity = async (
       });
     }
 
-    // Get repo and relation key based on userType
     const { repo, relationKey } = getEntityRepoAndRelation(userType);
 
-    // Fetch entity with app_info relation
     const entity = await repo.findOne({
       where: { id: userId },
-      relations: ["app_info"],
     });
 
     if (!entity) {
@@ -98,40 +94,15 @@ export const addOrUpdateAppInfoForEntity = async (
       });
     }
 
-    // Check if app_info exists
-    let appInfo: AppInfo | null = (entity as any).app_info || null;
+    // Check if an app info already exists for this user
+    const existingAppInfo = await appInfoRepo.findOne({
+      where: {
+        [relationKey]: entity,
+      },
+    });
 
-    if (appInfo) {
-      // If appInfo exists, update it
-      appInfo.title = title ?? appInfo.title;
-      appInfo.subtitle = subtitle ?? appInfo.subtitle;
-      appInfo.description = description ?? appInfo.description;
-      appInfo.shareLink = shareLink ?? appInfo.shareLink;
-      appInfo.privacyPolicy = privacyPolicy ?? appInfo.privacyPolicy;
-      appInfo.latest_app_version =
-        latest_app_version ?? appInfo.latest_app_version;
-      appInfo.latest_ios_version =
-        latest_ios_version ?? appInfo.latest_ios_version;
-      appInfo.is_update_available =
-        is_update_available ?? appInfo.is_update_available;
-      appInfo.update_note = update_note ?? appInfo.update_note;
-      appInfo.google_play_update_link =
-        google_play_update_link ?? appInfo.google_play_update_link;
-      appInfo.app_store_update_link =
-        app_store_update_link ?? appInfo.app_store_update_link;
-      appInfo.updatedAt = new Date();
-
-      // Save the updated appInfo
-      await appInfoRepo.save(appInfo);
-
-      return res.status(200).json({
-        success: true,
-        message: `App info updated successfully for ${userType}.`,
-        data: appInfo,
-      });
-    } else {
-      // If appInfo does not exist, create a new one
-      appInfo = appInfoRepo.create({
+    if (existingAppInfo) {
+      Object.assign(existingAppInfo, {
         title,
         subtitle,
         description,
@@ -143,25 +114,43 @@ export const addOrUpdateAppInfoForEntity = async (
         update_note,
         google_play_update_link,
         app_store_update_link,
-        createdAt: new Date(),
         updatedAt: new Date(),
       });
 
-      // Save new appInfo
-      await appInfoRepo.save(appInfo);
+      await appInfoRepo.save(existingAppInfo);
 
-      // Link new appInfo to the user entity
-      (entity as any).app_info = appInfo;
-
-      // Save the entity with the newly linked app info
-      await repo.save(entity);
-
-      return res.status(201).json({
+      return res.status(200).json({
         success: true,
-        message: `App info added and linked to ${userType} successfully.`,
-        data: appInfo,
+        message: `App info updated successfully for ${userType}.`,
+        data: existingAppInfo,
       });
     }
+
+    // Create new app info
+    const newAppInfo = appInfoRepo.create({
+      title,
+      subtitle,
+      description,
+      shareLink,
+      privacyPolicy,
+      latest_app_version,
+      latest_ios_version,
+      is_update_available,
+      update_note,
+      google_play_update_link,
+      app_store_update_link,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      [relationKey]: entity,
+    });
+
+    await appInfoRepo.save(newAppInfo);
+
+    return res.status(201).json({
+      success: true,
+      message: `App info created and linked to ${userType} successfully.`,
+      data: newAppInfo,
+    });
   } catch (error: any) {
     console.error("Error in adding/updating app information:", error);
     return res.status(500).json({
@@ -172,7 +161,7 @@ export const addOrUpdateAppInfoForEntity = async (
   }
 };
 
-//get by id
+// ✅ Get App Info by User ID
 export const getAppInfoByEntityId = async (
   req: Request,
   res: Response
@@ -189,14 +178,8 @@ export const getAppInfoByEntityId = async (
       });
     }
 
-    // Get the correct repository
-    const { repo } = getEntityRepoAndRelation(userType);
-
-    // Fetch the entity including app_info relation
-    const entity = await repo.findOne({
-      where: { id: userId },
-      relations: ["app_info"],
-    });
+    const { repo, relationKey } = getEntityRepoAndRelation(userType);
+    const entity = await repo.findOne({ where: { id: userId } });
 
     if (!entity) {
       return res.status(404).json({
@@ -206,12 +189,16 @@ export const getAppInfoByEntityId = async (
       });
     }
 
-    const appInfo = (entity as any).app_info;
+    const appInfo = await AppDataSource.getRepository(AppInfo).findOne({
+      where: {
+        [relationKey]: entity,
+      },
+    });
 
     if (!appInfo) {
       return res.status(404).json({
         success: false,
-        message: `App info not found for ${userType} with ID ${userId}.`,
+        message: `No app info found for ${userType} with ID ${userId}.`,
         data: null,
       });
     }

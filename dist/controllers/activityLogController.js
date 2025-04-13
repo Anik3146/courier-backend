@@ -17,7 +17,7 @@ const Operator_1 = require("../entities/Operator");
 const Merchant_1 = require("../entities/Merchant");
 const PickupMan_1 = require("../entities/PickupMan");
 const DeliveryMan_1 = require("../entities/DeliveryMan");
-// 🔁 Reuse utility for repo + relation key
+// Utility: Get repo + relation key
 const getEntityRepoAndRelation = (userType) => {
     switch (userType.toLowerCase()) {
         case "agent":
@@ -49,7 +49,7 @@ const getEntityRepoAndRelation = (userType) => {
             throw new Error("Invalid user type");
     }
 };
-// ✅ Add Activity Log
+// ✅ Create a new Activity Log for an entity
 const addActivityLogForEntity = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const activityRepo = data_source_1.AppDataSource.getRepository(ActivityLog_1.ActivityLog);
     try {
@@ -68,10 +68,11 @@ const addActivityLogForEntity = (req, res) => __awaiter(void 0, void 0, void 0, 
         if (!entity) {
             return res.status(404).json({
                 success: false,
-                message: `${userType} not found.`,
+                message: `${userType} with ID ${userId} not found.`,
                 data: null,
             });
         }
+        // Create and link the activity log
         const newActivity = activityRepo.create({
             activity,
             activity_time,
@@ -83,6 +84,7 @@ const addActivityLogForEntity = (req, res) => __awaiter(void 0, void 0, void 0, 
             latitude,
             longitude,
             [relationKey]: entity,
+            createdAt: new Date(),
         });
         yield activityRepo.save(newActivity);
         return res.status(201).json({
@@ -101,7 +103,7 @@ const addActivityLogForEntity = (req, res) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.addActivityLogForEntity = addActivityLogForEntity;
-// ✅ Get all activity logs for a user
+// ✅ Get all activity logs for an entity
 const getActivityLogsByEntityId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const activityRepo = data_source_1.AppDataSource.getRepository(ActivityLog_1.ActivityLog);
     try {
@@ -124,9 +126,7 @@ const getActivityLogsByEntityId = (req, res) => __awaiter(void 0, void 0, void 0
             });
         }
         const logs = yield activityRepo.find({
-            where: {
-                [relationKey]: entity,
-            },
+            where: { [relationKey]: entity },
             order: { createdAt: "DESC" },
         });
         return res.status(200).json({

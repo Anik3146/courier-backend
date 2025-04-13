@@ -16,29 +16,27 @@ const getEntityRepoAndRelation = (
   switch (userType.toLowerCase()) {
     case "agent":
       return {
-        repo: AppDataSource.getRepository(Agent) as Repository<UserEntity>,
+        repo: AppDataSource.getRepository(Agent),
         relationKey: "agent",
       };
     case "operator":
       return {
-        repo: AppDataSource.getRepository(Operator) as Repository<UserEntity>,
+        repo: AppDataSource.getRepository(Operator),
         relationKey: "operator",
       };
     case "merchant":
       return {
-        repo: AppDataSource.getRepository(Merchant) as Repository<UserEntity>,
+        repo: AppDataSource.getRepository(Merchant),
         relationKey: "merchant",
       };
     case "pickupman":
       return {
-        repo: AppDataSource.getRepository(PickupMan) as Repository<UserEntity>,
+        repo: AppDataSource.getRepository(PickupMan),
         relationKey: "pickupMan",
       };
     case "deliveryman":
       return {
-        repo: AppDataSource.getRepository(
-          DeliveryMan
-        ) as Repository<UserEntity>,
+        repo: AppDataSource.getRepository(DeliveryMan),
         relationKey: "deliveryMan",
       };
     default:
@@ -51,7 +49,7 @@ export const addOrUpdateDeviceInfoForEntity = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const deviceRepo = AppDataSource.getRepository(DeviceInfo); // DeviceInfo Repository
+  const deviceRepo = AppDataSource.getRepository(DeviceInfo);
 
   try {
     const {
@@ -81,10 +79,8 @@ export const addOrUpdateDeviceInfoForEntity = async (
 
     const { repo, relationKey } = getEntityRepoAndRelation(userType);
 
-    // Fetch the entity based on userId and userType, along with its deviceInfos relation
     const entity = await repo.findOne({
       where: { id: userId },
-      relations: ["deviceInfos"],
     });
 
     if (!entity) {
@@ -95,14 +91,16 @@ export const addOrUpdateDeviceInfoForEntity = async (
       });
     }
 
-    // Check if DeviceInfo already exists for this entity
-    let existingDeviceInfo = await deviceRepo.findOne({
-      where: { [relationKey]: entity },
+    // Check if DeviceInfo already exists for this user
+    const existingDeviceInfo = await deviceRepo.findOne({
+      where: {
+        [relationKey]: entity,
+      },
     });
 
     if (existingDeviceInfo) {
-      // If device info exists, update it
-      existingDeviceInfo = Object.assign(existingDeviceInfo, {
+      // Update existing
+      Object.assign(existingDeviceInfo, {
         name,
         model,
         manufacturer,
@@ -117,7 +115,6 @@ export const addOrUpdateDeviceInfoForEntity = async (
         updatedAt: new Date(),
       });
 
-      // Save the updated DeviceInfo
       await deviceRepo.save(existingDeviceInfo);
 
       return res.status(200).json({
@@ -127,7 +124,7 @@ export const addOrUpdateDeviceInfoForEntity = async (
       });
     }
 
-    // If DeviceInfo does not exist, create a new DeviceInfo
+    // Otherwise, create new
     const newDeviceInfo = deviceRepo.create({
       name,
       model,
@@ -142,10 +139,9 @@ export const addOrUpdateDeviceInfoForEntity = async (
       longitude,
       createdAt: new Date(),
       updatedAt: new Date(),
-      [relationKey]: entity, // Link to the user entity
+      [relationKey]: entity,
     });
 
-    // Save the newly created DeviceInfo
     await deviceRepo.save(newDeviceInfo);
 
     return res.status(201).json({
@@ -163,7 +159,7 @@ export const addOrUpdateDeviceInfoForEntity = async (
   }
 };
 
-// ✅ Get Device Info by Entity
+// ✅ Get Device Info by Entity ID
 export const getDeviceInfoByEntityId = async (
   req: Request,
   res: Response
@@ -188,7 +184,7 @@ export const getDeviceInfoByEntityId = async (
     if (!entity) {
       return res.status(404).json({
         success: false,
-        message: `${userType} not found.`,
+        message: `${userType} with ID ${userId} not found.`,
         data: null,
       });
     }

@@ -8,9 +8,10 @@ import { DeliveryMan } from "../entities/DeliveryMan";
 import { Request, Response } from "express";
 import { Repository } from "typeorm";
 
+// Union type for all user entities
 type UserEntity = Agent | Operator | Merchant | PickupMan | DeliveryMan;
 
-// 🔁 Reuse utility for repo + relation key
+// Utility: Get repo + relation key
 const getEntityRepoAndRelation = (
   userType: string
 ): { repo: Repository<UserEntity>; relationKey: keyof ActivityLog } => {
@@ -47,7 +48,7 @@ const getEntityRepoAndRelation = (
   }
 };
 
-// ✅ Add Activity Log
+// ✅ Create a new Activity Log for an entity
 export const addActivityLogForEntity = async (
   req: Request,
   res: Response
@@ -85,11 +86,12 @@ export const addActivityLogForEntity = async (
     if (!entity) {
       return res.status(404).json({
         success: false,
-        message: `${userType} not found.`,
+        message: `${userType} with ID ${userId} not found.`,
         data: null,
       });
     }
 
+    // Create and link the activity log
     const newActivity = activityRepo.create({
       activity,
       activity_time,
@@ -101,6 +103,7 @@ export const addActivityLogForEntity = async (
       latitude,
       longitude,
       [relationKey]: entity,
+      createdAt: new Date(),
     });
 
     await activityRepo.save(newActivity);
@@ -120,7 +123,7 @@ export const addActivityLogForEntity = async (
   }
 };
 
-// ✅ Get all activity logs for a user
+// ✅ Get all activity logs for an entity
 export const getActivityLogsByEntityId = async (
   req: Request,
   res: Response
@@ -152,9 +155,7 @@ export const getActivityLogsByEntityId = async (
     }
 
     const logs = await activityRepo.find({
-      where: {
-        [relationKey]: entity,
-      },
+      where: { [relationKey]: entity },
       order: { createdAt: "DESC" },
     });
 

@@ -50,7 +50,7 @@ const getEntityRepoAndRelation = (userType) => {
 };
 // ✅ Add or Update Device Info for Entity
 const addOrUpdateDeviceInfoForEntity = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const deviceRepo = data_source_1.AppDataSource.getRepository(DeviceInfo_1.DeviceInfo); // DeviceInfo Repository
+    const deviceRepo = data_source_1.AppDataSource.getRepository(DeviceInfo_1.DeviceInfo);
     try {
         const { name, model, manufacturer, version, brand, fingerprint, serial_number, device_id, IMEI, latitude, longitude, } = req.body;
         const userId = Number(req.params.userId);
@@ -63,10 +63,8 @@ const addOrUpdateDeviceInfoForEntity = (req, res) => __awaiter(void 0, void 0, v
             });
         }
         const { repo, relationKey } = getEntityRepoAndRelation(userType);
-        // Fetch the entity based on userId and userType, along with its deviceInfos relation
         const entity = yield repo.findOne({
             where: { id: userId },
-            relations: ["deviceInfos"],
         });
         if (!entity) {
             return res.status(404).json({
@@ -75,13 +73,15 @@ const addOrUpdateDeviceInfoForEntity = (req, res) => __awaiter(void 0, void 0, v
                 data: null,
             });
         }
-        // Check if DeviceInfo already exists for this entity
-        let existingDeviceInfo = yield deviceRepo.findOne({
-            where: { [relationKey]: entity },
+        // Check if DeviceInfo already exists for this user
+        const existingDeviceInfo = yield deviceRepo.findOne({
+            where: {
+                [relationKey]: entity,
+            },
         });
         if (existingDeviceInfo) {
-            // If device info exists, update it
-            existingDeviceInfo = Object.assign(existingDeviceInfo, {
+            // Update existing
+            Object.assign(existingDeviceInfo, {
                 name,
                 model,
                 manufacturer,
@@ -95,7 +95,6 @@ const addOrUpdateDeviceInfoForEntity = (req, res) => __awaiter(void 0, void 0, v
                 longitude,
                 updatedAt: new Date(),
             });
-            // Save the updated DeviceInfo
             yield deviceRepo.save(existingDeviceInfo);
             return res.status(200).json({
                 success: true,
@@ -103,7 +102,7 @@ const addOrUpdateDeviceInfoForEntity = (req, res) => __awaiter(void 0, void 0, v
                 data: existingDeviceInfo,
             });
         }
-        // If DeviceInfo does not exist, create a new DeviceInfo
+        // Otherwise, create new
         const newDeviceInfo = deviceRepo.create({
             name,
             model,
@@ -118,9 +117,8 @@ const addOrUpdateDeviceInfoForEntity = (req, res) => __awaiter(void 0, void 0, v
             longitude,
             createdAt: new Date(),
             updatedAt: new Date(),
-            [relationKey]: entity, // Link to the user entity
+            [relationKey]: entity,
         });
-        // Save the newly created DeviceInfo
         yield deviceRepo.save(newDeviceInfo);
         return res.status(201).json({
             success: true,
@@ -138,7 +136,7 @@ const addOrUpdateDeviceInfoForEntity = (req, res) => __awaiter(void 0, void 0, v
     }
 });
 exports.addOrUpdateDeviceInfoForEntity = addOrUpdateDeviceInfoForEntity;
-// ✅ Get Device Info by Entity
+// ✅ Get Device Info by Entity ID
 const getDeviceInfoByEntityId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const deviceRepo = data_source_1.AppDataSource.getRepository(DeviceInfo_1.DeviceInfo);
     try {
@@ -156,7 +154,7 @@ const getDeviceInfoByEntityId = (req, res) => __awaiter(void 0, void 0, void 0, 
         if (!entity) {
             return res.status(404).json({
                 success: false,
-                message: `${userType} not found.`,
+                message: `${userType} with ID ${userId} not found.`,
                 data: null,
             });
         }
