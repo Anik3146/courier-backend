@@ -161,10 +161,9 @@ const signInMerchant = (req, res) => {
 exports.signInMerchant = signInMerchant;
 // Get Merchant by ID and Match with Token
 const getMerchantById = (req, res) => {
-    // The outer function is synchronous
     const getMerchant = () => __awaiter(void 0, void 0, void 0, function* () {
         const { id } = req.params;
-        const { user } = req; // Extract user information from the token
+        const { user } = req;
         if (!id) {
             return res.status(400).json({
                 success: false,
@@ -172,7 +171,6 @@ const getMerchantById = (req, res) => {
                 data: null,
             });
         }
-        // Convert id to a number (assuming the id is a number in the database)
         const merchantId = parseInt(id, 10);
         if (isNaN(merchantId)) {
             return res.status(400).json({
@@ -181,7 +179,6 @@ const getMerchantById = (req, res) => {
                 data: null,
             });
         }
-        // Ensure the ID from the URL matches the authenticated user's ID
         if (merchantId !== (user === null || user === void 0 ? void 0 : user.id)) {
             return res.status(403).json({
                 success: false,
@@ -190,9 +187,9 @@ const getMerchantById = (req, res) => {
             });
         }
         try {
-            // Find the merchant by ID
             const merchant = yield data_source_1.AppDataSource.manager.findOne(Merchant_1.Merchant, {
                 where: { id: merchantId },
+                relations: ["deliveries", "sentMessages", "receivedMessages", "promos"],
             });
             if (!merchant) {
                 return res.status(404).json({
@@ -216,7 +213,6 @@ const getMerchantById = (req, res) => {
             });
         }
     });
-    // Call the inner async function
     getMerchant().catch((err) => {
         console.error("Unexpected error:", err);
         return res.status(500).json({
