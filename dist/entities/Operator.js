@@ -14,6 +14,9 @@ const typeorm_1 = require("typeorm");
 const District_1 = require("./District");
 const Thana_1 = require("./Thana");
 const Agent_1 = require("./Agent");
+const AppInfo_1 = require("./AppInfo");
+const ActivityLog_1 = require("./ActivityLog");
+const DeviceInfo_1 = require("./DeviceInfo");
 let Operator = class Operator {
 };
 exports.Operator = Operator;
@@ -43,6 +46,18 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => Agent_1.Agent, (agent) => agent.operator),
     __metadata("design:type", Array)
 ], Operator.prototype, "agents", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => AppInfo_1.AppInfo, (appInfo) => appInfo.operator),
+    __metadata("design:type", Array)
+], Operator.prototype, "appInfos", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => ActivityLog_1.ActivityLog, (activityLog) => activityLog.operator),
+    __metadata("design:type", Array)
+], Operator.prototype, "activityLogs", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => DeviceInfo_1.DeviceInfo, (deviceInfo) => deviceInfo.operator),
+    __metadata("design:type", Array)
+], Operator.prototype, "deviceInfos", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

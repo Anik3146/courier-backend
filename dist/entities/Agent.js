@@ -17,6 +17,9 @@ const DeliveryMan_1 = require("./DeliveryMan");
 const Delivery_1 = require("./Delivery");
 const Message_1 = require("./Message");
 const Operator_1 = require("./Operator");
+const AppInfo_1 = require("./AppInfo");
+const ActivityLog_1 = require("./ActivityLog");
+const DeviceInfo_1 = require("./DeviceInfo");
 let Agent = class Agent {
 };
 exports.Agent = Agent;
@@ -61,6 +64,18 @@ __decorate([
     (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", Operator_1.Operator)
 ], Agent.prototype, "operator", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => AppInfo_1.AppInfo, (appInfo) => appInfo.agent),
+    __metadata("design:type", Array)
+], Agent.prototype, "appInfos", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => ActivityLog_1.ActivityLog, (activityLog) => activityLog.agent),
+    __metadata("design:type", Array)
+], Agent.prototype, "activityLogs", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => DeviceInfo_1.DeviceInfo, (deviceInfo) => deviceInfo.agent),
+    __metadata("design:type", Array)
+], Agent.prototype, "deviceInfos", void 0);
 exports.Agent = Agent = __decorate([
     (0, typeorm_1.Entity)()
 ], Agent);

@@ -19,6 +19,9 @@ import { Invoice } from "./entities/Invoice";
 import { Message } from "./entities/Message";
 import { Promo } from "./entities/Promo";
 import { Operator } from "./entities/Operator";
+import { ActivityLog } from "./entities/ActivityLog";
+import { AppInfo } from "./entities/AppInfo";
+import { DeviceInfo } from "./entities/DeviceInfo";
 // Add other entities as required
 dotenv.config();
 export const AppDataSource = new DataSource({
@@ -47,6 +50,9 @@ export const AppDataSource = new DataSource({
     Message,
     Promo,
     Operator,
+    ActivityLog,
+    AppInfo,
+    DeviceInfo,
   ], // Include all entities
   synchronize: true,
   logging: true,

@@ -17,8 +17,11 @@ import zoneRoutes from "./routes/zoneRouter";
 import areaRoutes from "./routes/areaRouter";
 import invoiceRoutes from "./routes/invoiceRouter";
 import messageRoutes from "./routes/messageRouter";
-import promoController from "./routes/promoRouter";
-import operatorController from "./routes/operatorRouter";
+import promoRoutes from "./routes/promoRouter";
+import operatorRoutes from "./routes/operatorRouter";
+import activityLogRoutes from "./routes/activityLogRouter";
+import appInfoRoutes from "./routes/appInfoRouter";
+import deviceInfoRoutes from "./routes/deviceInfoRouter";
 
 import cors from "cors";
 import path from "path";
@@ -54,8 +57,12 @@ app.use("/zones", zoneRoutes);
 app.use("/areas", areaRoutes);
 app.use("/invoices", invoiceRoutes);
 app.use("/messages", messageRoutes);
-app.use("/promos", promoController);
-app.use("/operators", operatorController);
+app.use("/promos", promoRoutes);
+app.use("/operators", operatorRoutes);
+app.use("/activity-log", activityLogRoutes);
+app.use("/app-info", appInfoRoutes);
+app.use("/device-info", deviceInfoRoutes);
+
 // Serve static files (e.g., images) from the 'uploads' directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/", (req: any, res: any) => {

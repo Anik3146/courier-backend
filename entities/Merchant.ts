@@ -9,6 +9,9 @@ import {
 import { Delivery } from "./Delivery";
 import { Message } from "./Message";
 import { Promo } from "./Promo";
+import { AppInfo } from "./AppInfo";
+import { ActivityLog } from "./ActivityLog";
+import { DeviceInfo } from "./DeviceInfo";
 
 @Entity()
 export class Merchant {
@@ -45,4 +48,16 @@ export class Merchant {
   @ManyToMany(() => Promo, (promo) => promo.users, { cascade: true })
   @JoinTable()
   promos!: Promo[];
+
+  // ✅ Relating Merchant to AppInfo
+  @OneToMany(() => AppInfo, (appInfo) => appInfo.merchant)
+  appInfos?: AppInfo[];
+
+  // ✅ Activity Logs
+  @OneToMany(() => ActivityLog, (activityLog) => activityLog.merchant)
+  activityLogs?: ActivityLog[];
+
+  // ✅ Device Info
+  @OneToMany(() => DeviceInfo, (deviceInfo) => deviceInfo.merchant)
+  deviceInfos?: DeviceInfo[];
 }

@@ -12,6 +12,9 @@ import { DeliveryMan } from "./DeliveryMan";
 import { Delivery } from "./Delivery";
 import { Message } from "./Message";
 import { Operator } from "./Operator";
+import { AppInfo } from "./AppInfo";
+import { ActivityLog } from "./ActivityLog";
+import { DeviceInfo } from "./DeviceInfo";
 
 @Entity()
 export class Agent {
@@ -45,4 +48,16 @@ export class Agent {
   @ManyToOne(() => Operator, (operator) => operator.agents, { nullable: true })
   @JoinColumn()
   operator!: Operator;
+
+  // ✅ AppInfos linked to this Agent
+  @OneToMany(() => AppInfo, (appInfo) => appInfo.agent)
+  appInfos?: AppInfo[];
+
+  // ✅ Activity Logs linked to this Agent
+  @OneToMany(() => ActivityLog, (activityLog) => activityLog.agent)
+  activityLogs?: ActivityLog[];
+
+  // ✅ Device Info linked to this Agent
+  @OneToMany(() => DeviceInfo, (deviceInfo) => deviceInfo.agent)
+  deviceInfos?: DeviceInfo[];
 }

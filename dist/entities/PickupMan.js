@@ -14,6 +14,9 @@ const typeorm_1 = require("typeorm");
 const Agent_1 = require("./Agent");
 const Thana_1 = require("./Thana");
 const Message_1 = require("./Message");
+const AppInfo_1 = require("./AppInfo");
+const ActivityLog_1 = require("./ActivityLog");
+const DeviceInfo_1 = require("./DeviceInfo");
 let PickupMan = class PickupMan {
 };
 exports.PickupMan = PickupMan;
@@ -45,6 +48,18 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => Message_1.Message, (message) => message.pickupManReceiver),
     __metadata("design:type", Array)
 ], PickupMan.prototype, "receivedMessages", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => AppInfo_1.AppInfo, (appInfo) => appInfo.pickupMan),
+    __metadata("design:type", Array)
+], PickupMan.prototype, "appInfos", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => ActivityLog_1.ActivityLog, (activityLog) => activityLog.pickupMan),
+    __metadata("design:type", Array)
+], PickupMan.prototype, "activityLogs", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => DeviceInfo_1.DeviceInfo, (deviceInfo) => deviceInfo.pickupMan),
+    __metadata("design:type", Array)
+], PickupMan.prototype, "deviceInfos", void 0);
 exports.PickupMan = PickupMan = __decorate([
     (0, typeorm_1.Entity)()
 ], PickupMan);

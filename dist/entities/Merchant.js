@@ -14,6 +14,9 @@ const typeorm_1 = require("typeorm");
 const Delivery_1 = require("./Delivery");
 const Message_1 = require("./Message");
 const Promo_1 = require("./Promo");
+const AppInfo_1 = require("./AppInfo");
+const ActivityLog_1 = require("./ActivityLog");
+const DeviceInfo_1 = require("./DeviceInfo");
 let Merchant = class Merchant {
 };
 exports.Merchant = Merchant;
@@ -62,6 +65,18 @@ __decorate([
     (0, typeorm_1.JoinTable)(),
     __metadata("design:type", Array)
 ], Merchant.prototype, "promos", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => AppInfo_1.AppInfo, (appInfo) => appInfo.merchant),
+    __metadata("design:type", Array)
+], Merchant.prototype, "appInfos", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => ActivityLog_1.ActivityLog, (activityLog) => activityLog.merchant),
+    __metadata("design:type", Array)
+], Merchant.prototype, "activityLogs", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => DeviceInfo_1.DeviceInfo, (deviceInfo) => deviceInfo.merchant),
+    __metadata("design:type", Array)
+], Merchant.prototype, "deviceInfos", void 0);
 exports.Merchant = Merchant = __decorate([
     (0, typeorm_1.Entity)()
 ], Merchant);
