@@ -4,11 +4,13 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  OneToOne,
 } from "typeorm";
 import { Merchant } from "./Merchant";
 import { Agent } from "./Agent";
 import { PickupMan } from "./PickupMan";
 import { DeliveryMan } from "./DeliveryMan";
+import { Invoice } from "./Invoice";
 
 @Entity()
 export class Delivery {
@@ -104,4 +106,7 @@ export class Delivery {
 
   @Column({ type: "decimal" })
   delivery_charge?: number;
+
+  @OneToOne(() => Invoice, (invoice) => invoice.delivery)
+  invoice?: Invoice;
 }

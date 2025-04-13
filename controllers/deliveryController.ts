@@ -84,10 +84,15 @@ export const createDelivery = (req: Request, res: Response) => {
       const savedDelivery = await AppDataSource.manager.save(delivery);
 
       // Create corresponding invoice
-      const codFee = Number(savedDelivery.amount_to_collect || 0) * 0.02; // 2% COD fee
-      const collectedAmount = Number(savedDelivery.amount_to_collect || 0);
-      const receivableAmount =
-        collectedAmount - (Number(delivery_charge) + codFee);
+      const codFee = +(Number(savedDelivery.amount_to_collect) * 0.02).toFixed(
+        2
+      );
+      const collectedAmount = Number(savedDelivery.amount_to_collect);
+      const receivableAmount = +(
+        collectedAmount -
+        Number(delivery_charge) -
+        codFee
+      ).toFixed(2);
 
       const invoice = new Invoice();
       invoice.delivery = savedDelivery;
@@ -164,7 +169,7 @@ export const updateDeliveryStatus = async (
   try {
     const delivery = await AppDataSource.manager.findOne(Delivery, {
       where: { id: Number(id) },
-      relations: ["agent", "pickupMan", "deliveryMan", "merchant"],
+      relations: ["agent", "pickupMan", "deliveryMan", "merchant", "invoice"],
     });
 
     if (!delivery) {
@@ -231,17 +236,15 @@ export const updateDeliveryStatus = async (
         where: { id: deliveryManId },
       });
       if (!deliveryMan)
-        return res
-          .status(404)
-          .json({
-            success: false,
-            message: "Delivery Man not found",
-            data: {},
-          });
+        return res.status(404).json({
+          success: false,
+          message: "Delivery Man not found",
+          data: {},
+        });
       delivery.deliveryMan = deliveryMan;
     }
 
-    // ✅ Save updated delivery before invoice updates
+    // ✅ Save delivery before invoice update
     await AppDataSource.manager.save(Delivery, delivery);
 
     // ✅ Update invoice linked to this delivery
@@ -254,8 +257,10 @@ export const updateDeliveryStatus = async (
       const updatedCOD = Number(delivery.amount_to_collect || 0);
       const updatedCharge = Number(delivery.delivery_charge || 0);
       const updatedPrice = Number(delivery.price || 0);
-      const codFee = updatedCOD * 0.02;
-      const receivableAmount = updatedCOD - (updatedCharge + codFee);
+      const codFee = +(updatedCOD * 0.02).toFixed(2);
+      const receivableAmount = +(updatedCOD - updatedCharge - codFee).toFixed(
+        2
+      );
 
       invoice.total_amount = updatedPrice;
       invoice.delivery_charge = updatedCharge;
@@ -263,7 +268,7 @@ export const updateDeliveryStatus = async (
       invoice.collected_amount = updatedCOD;
       invoice.receivable_amount = receivableAmount;
 
-      // Sync payment status if delivery is marked Paid
+      // Sync status if delivery is marked paid
       if (delivery.payment_status === "Paid") {
         invoice.payment_status = "Paid";
       }
@@ -271,42 +276,45 @@ export const updateDeliveryStatus = async (
       await AppDataSource.manager.save(invoice);
     }
 
-    // ✅ Money distribution logic
-    const isCompleted =
-      delivery.delivery_status === "Delivered" &&
-      delivery.pickup_status === "Picked Up";
-
+    // ✅ Money distribution: only when both are marked "Paid"
     if (
-      isCompleted &&
+      invoice &&
+      invoice.payment_status === "Paid" &&
+      delivery.payment_status === "Paid" &&
       delivery.agent &&
       delivery.pickupMan &&
-      delivery.deliveryMan
+      delivery.deliveryMan &&
+      delivery.merchant
     ) {
-      const priceVal = delivery.price || 0;
+      const priceVal = Number(delivery.price || 0);
       const agentCut = priceVal * 0.1;
       const pickupManCut = priceVal * 0.03;
       const deliveryManCut = priceVal * 0.02;
 
+      // Distribute
       if (delivery.agent.balance !== undefined) {
-        delivery.agent.balance += agentCut;
+        delivery.agent.balance = Number(delivery.agent.balance) + agentCut;
         await AppDataSource.manager.save(Agent, delivery.agent);
       }
 
       if (delivery.pickupMan.balance !== undefined) {
-        delivery.pickupMan.balance += pickupManCut;
+        delivery.pickupMan.balance =
+          Number(delivery.pickupMan.balance) + pickupManCut;
         await AppDataSource.manager.save(PickupMan, delivery.pickupMan);
       }
 
       if (delivery.deliveryMan.balance !== undefined) {
-        delivery.deliveryMan.balance += deliveryManCut;
+        delivery.deliveryMan.balance =
+          Number(delivery.deliveryMan.balance) + deliveryManCut;
         await AppDataSource.manager.save(DeliveryMan, delivery.deliveryMan);
       }
 
       const remainingAmount =
         priceVal - (agentCut + pickupManCut + deliveryManCut);
 
-      if (delivery.merchant?.balance !== undefined) {
-        delivery.merchant.balance += remainingAmount;
+      if (delivery.merchant.balance !== undefined) {
+        delivery.merchant.balance =
+          Number(delivery.merchant.balance) + remainingAmount;
         await AppDataSource.manager.save(Merchant, delivery.merchant);
       }
     }

@@ -12,15 +12,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllInvoices = exports.deleteInvoice = exports.updateInvoice = void 0;
 const data_source_1 = require("../data-source");
 const Invoice_1 = require("../entities/Invoice");
+const PickupMan_1 = require("../entities/PickupMan");
+const Agent_1 = require("../entities/Agent");
+const DeliveryMan_1 = require("../entities/DeliveryMan");
+const Merchant_1 = require("../entities/Merchant");
 // ✅ Update Invoice
 const updateInvoice = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d;
     const { id } = req.params;
     const { delivery_charge, cod_fee, collected_amount, receivable_amount, total_amount, payment_status, } = req.body;
     try {
-        const invoice = yield data_source_1.AppDataSource.manager.findOne(Invoice_1.Invoice, {
-            where: { id: Number(id) },
-            relations: ["delivery"], // Needed to access the related delivery
-        });
+        // Fetch the invoice with related delivery, agent, pickupMan, deliveryMan, and merchant
+        const invoice = yield data_source_1.AppDataSource.manager
+            .createQueryBuilder(Invoice_1.Invoice, "invoice")
+            .leftJoinAndSelect("invoice.delivery", "delivery")
+            .leftJoinAndSelect("delivery.agent", "agent")
+            .leftJoinAndSelect("delivery.pickupMan", "pickupMan")
+            .leftJoinAndSelect("delivery.deliveryMan", "deliveryMan")
+            .leftJoinAndSelect("delivery.merchant", "merchant")
+            .where("invoice.id = :id", { id: Number(id) })
+            .getOne();
         if (!invoice) {
             return res.status(404).json({
                 success: false,
@@ -46,6 +57,37 @@ const updateInvoice = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (payment_status === "Paid" && invoice.delivery) {
             invoice.delivery.payment_status = "Paid";
             yield data_source_1.AppDataSource.manager.save(invoice.delivery);
+        }
+        // ✅ Distribute money if both Invoice and Delivery are marked as "Paid"
+        const delivery = invoice.delivery;
+        if (payment_status === "Paid" && (delivery === null || delivery === void 0 ? void 0 : delivery.payment_status) === "Paid") {
+            const price = Number(delivery.price) || 0;
+            const agentCut = price * 0.1;
+            const pickupManCut = price * 0.03;
+            const deliveryManCut = price * 0.02;
+            // Ensure balances are initialized to 0 if undefined
+            if (delivery.agent) {
+                delivery.agent.balance = (_a = delivery.agent.balance) !== null && _a !== void 0 ? _a : 0;
+                delivery.agent.balance += agentCut;
+                yield data_source_1.AppDataSource.manager.save(Agent_1.Agent, delivery.agent);
+            }
+            if (delivery.pickupMan) {
+                delivery.pickupMan.balance = (_b = delivery.pickupMan.balance) !== null && _b !== void 0 ? _b : 0;
+                delivery.pickupMan.balance += pickupManCut;
+                yield data_source_1.AppDataSource.manager.save(PickupMan_1.PickupMan, delivery.pickupMan);
+            }
+            if (delivery.deliveryMan) {
+                delivery.deliveryMan.balance = (_c = delivery.deliveryMan.balance) !== null && _c !== void 0 ? _c : 0;
+                delivery.deliveryMan.balance += deliveryManCut;
+                yield data_source_1.AppDataSource.manager.save(DeliveryMan_1.DeliveryMan, delivery.deliveryMan);
+            }
+            // Remaining to Merchant
+            const merchantCut = price - (agentCut + pickupManCut + deliveryManCut);
+            if (delivery.merchant) {
+                delivery.merchant.balance = (_d = delivery.merchant.balance) !== null && _d !== void 0 ? _d : 0;
+                delivery.merchant.balance += merchantCut;
+                yield data_source_1.AppDataSource.manager.save(Merchant_1.Merchant, delivery.merchant);
+            }
         }
         return res.status(200).json({
             success: true,

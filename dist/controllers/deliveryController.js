@@ -66,9 +66,11 @@ const createDelivery = (req, res) => {
             // Save delivery
             const savedDelivery = yield data_source_1.AppDataSource.manager.save(delivery);
             // Create corresponding invoice
-            const codFee = Number(savedDelivery.amount_to_collect || 0) * 0.02; // 2% COD fee
-            const collectedAmount = Number(savedDelivery.amount_to_collect || 0);
-            const receivableAmount = collectedAmount - (Number(delivery_charge) + codFee);
+            const codFee = +(Number(savedDelivery.amount_to_collect) * 0.02).toFixed(2);
+            const collectedAmount = Number(savedDelivery.amount_to_collect);
+            const receivableAmount = +(collectedAmount -
+                Number(delivery_charge) -
+                codFee).toFixed(2);
             const invoice = new Invoice_1.Invoice();
             invoice.delivery = savedDelivery;
             invoice.total_amount = Number(price);
@@ -108,13 +110,12 @@ const createDelivery = (req, res) => {
 exports.createDelivery = createDelivery;
 // Update Delivery Status (Pickup & Delivery)
 const updateDeliveryStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     const { id } = req.params;
     const { store_name, product_type, recipient_name, recipient_phone, recipient_secondary_phone, address, area, instructions, delivery_type, total_weight, quantity, amount_to_collect, price, division, zilla, thana, delivery_status, pickup_status, payment_status, delivery_charge, agentId, pickupManId, deliveryManId, } = req.body;
     try {
         const delivery = yield data_source_1.AppDataSource.manager.findOne(Delivery_1.Delivery, {
             where: { id: Number(id) },
-            relations: ["agent", "pickupMan", "deliveryMan", "merchant"],
+            relations: ["agent", "pickupMan", "deliveryMan", "merchant", "invoice"],
         });
         if (!delivery) {
             return res.status(404).json({
@@ -190,16 +191,14 @@ const updateDeliveryStatus = (req, res) => __awaiter(void 0, void 0, void 0, fun
                 where: { id: deliveryManId },
             });
             if (!deliveryMan)
-                return res
-                    .status(404)
-                    .json({
+                return res.status(404).json({
                     success: false,
                     message: "Delivery Man not found",
                     data: {},
                 });
             delivery.deliveryMan = deliveryMan;
         }
-        // ✅ Save updated delivery before invoice updates
+        // ✅ Save delivery before invoice update
         yield data_source_1.AppDataSource.manager.save(Delivery_1.Delivery, delivery);
         // ✅ Update invoice linked to this delivery
         const invoice = yield data_source_1.AppDataSource.manager.findOne(Invoice_1.Invoice, {
@@ -210,45 +209,50 @@ const updateDeliveryStatus = (req, res) => __awaiter(void 0, void 0, void 0, fun
             const updatedCOD = Number(delivery.amount_to_collect || 0);
             const updatedCharge = Number(delivery.delivery_charge || 0);
             const updatedPrice = Number(delivery.price || 0);
-            const codFee = updatedCOD * 0.02;
-            const receivableAmount = updatedCOD - (updatedCharge + codFee);
+            const codFee = +(updatedCOD * 0.02).toFixed(2);
+            const receivableAmount = +(updatedCOD - updatedCharge - codFee).toFixed(2);
             invoice.total_amount = updatedPrice;
             invoice.delivery_charge = updatedCharge;
             invoice.cod_fee = codFee;
             invoice.collected_amount = updatedCOD;
             invoice.receivable_amount = receivableAmount;
-            // Sync payment status if delivery is marked Paid
+            // Sync status if delivery is marked paid
             if (delivery.payment_status === "Paid") {
                 invoice.payment_status = "Paid";
             }
             yield data_source_1.AppDataSource.manager.save(invoice);
         }
-        // ✅ Money distribution logic
-        const isCompleted = delivery.delivery_status === "Delivered" &&
-            delivery.pickup_status === "Picked Up";
-        if (isCompleted &&
+        // ✅ Money distribution: only when both are marked "Paid"
+        if (invoice &&
+            invoice.payment_status === "Paid" &&
+            delivery.payment_status === "Paid" &&
             delivery.agent &&
             delivery.pickupMan &&
-            delivery.deliveryMan) {
-            const priceVal = delivery.price || 0;
+            delivery.deliveryMan &&
+            delivery.merchant) {
+            const priceVal = Number(delivery.price || 0);
             const agentCut = priceVal * 0.1;
             const pickupManCut = priceVal * 0.03;
             const deliveryManCut = priceVal * 0.02;
+            // Distribute
             if (delivery.agent.balance !== undefined) {
-                delivery.agent.balance += agentCut;
+                delivery.agent.balance = Number(delivery.agent.balance) + agentCut;
                 yield data_source_1.AppDataSource.manager.save(Agent_1.Agent, delivery.agent);
             }
             if (delivery.pickupMan.balance !== undefined) {
-                delivery.pickupMan.balance += pickupManCut;
+                delivery.pickupMan.balance =
+                    Number(delivery.pickupMan.balance) + pickupManCut;
                 yield data_source_1.AppDataSource.manager.save(PickupMan_1.PickupMan, delivery.pickupMan);
             }
             if (delivery.deliveryMan.balance !== undefined) {
-                delivery.deliveryMan.balance += deliveryManCut;
+                delivery.deliveryMan.balance =
+                    Number(delivery.deliveryMan.balance) + deliveryManCut;
                 yield data_source_1.AppDataSource.manager.save(DeliveryMan_1.DeliveryMan, delivery.deliveryMan);
             }
             const remainingAmount = priceVal - (agentCut + pickupManCut + deliveryManCut);
-            if (((_a = delivery.merchant) === null || _a === void 0 ? void 0 : _a.balance) !== undefined) {
-                delivery.merchant.balance += remainingAmount;
+            if (delivery.merchant.balance !== undefined) {
+                delivery.merchant.balance =
+                    Number(delivery.merchant.balance) + remainingAmount;
                 yield data_source_1.AppDataSource.manager.save(Merchant_1.Merchant, delivery.merchant);
             }
         }

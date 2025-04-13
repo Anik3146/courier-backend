@@ -15,6 +15,7 @@ const Merchant_1 = require("./Merchant");
 const Agent_1 = require("./Agent");
 const PickupMan_1 = require("./PickupMan");
 const DeliveryMan_1 = require("./DeliveryMan");
+const Invoice_1 = require("./Invoice");
 let Delivery = class Delivery {
 };
 exports.Delivery = Delivery;
@@ -136,6 +137,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: "decimal" }),
     __metadata("design:type", Number)
 ], Delivery.prototype, "delivery_charge", void 0);
+__decorate([
+    (0, typeorm_1.OneToOne)(() => Invoice_1.Invoice, (invoice) => invoice.delivery),
+    __metadata("design:type", Invoice_1.Invoice)
+], Delivery.prototype, "invoice", void 0);
 exports.Delivery = Delivery = __decorate([
     (0, typeorm_1.Entity)()
 ], Delivery);
