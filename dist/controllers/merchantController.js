@@ -23,11 +23,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateMerchantById = exports.getMerchantById = exports.signInMerchant = exports.registerMerchant = void 0;
+exports.assignPromoToMerchant = exports.updateMerchantById = exports.getMerchantById = exports.signInMerchant = exports.registerMerchant = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const data_source_1 = require("../data-source"); // Assume AppDataSource is your DB connection
 const Merchant_1 = require("../entities/Merchant");
+const Promo_1 = require("../entities/Promo");
 const typeorm_1 = require("typeorm");
 const JWT_SECRET = process.env.JWT_SECRET || "courier_bd_app";
 // Register Merchant
@@ -312,3 +313,50 @@ const updateMerchantById = (req, res) => {
     });
 };
 exports.updateMerchantById = updateMerchantById;
+//assign promo code to perchant if it is correct
+const assignPromoToMerchant = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const merchantRepo = data_source_1.AppDataSource.getRepository(Merchant_1.Merchant);
+        const promoRepo = data_source_1.AppDataSource.getRepository(Promo_1.Promo);
+        const merchant = yield merchantRepo.findOne({
+            where: { id: +req.params.merchantId },
+            relations: ["promos"],
+        });
+        if (!merchant) {
+            return res.status(404).json({
+                success: false,
+                message: "Merchant not found",
+            });
+        }
+        const promo = yield promoRepo.findOneBy({ id: +req.params.promoId });
+        if (!promo) {
+            return res.status(404).json({
+                success: false,
+                message: "Promo not found",
+            });
+        }
+        // Prevent duplicates (optional)
+        const alreadyAssigned = merchant.promos.find((p) => p.id === promo.id);
+        if (alreadyAssigned) {
+            return res.status(400).json({
+                success: false,
+                message: "Promo already assigned to merchant",
+            });
+        }
+        merchant.promos.push(promo);
+        const updated = yield merchantRepo.save(merchant);
+        res.json({
+            success: true,
+            message: "Promo assigned to merchant",
+            data: updated,
+        });
+    }
+    catch (error) {
+        console.error("Error assigning promo to merchant:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+});
+exports.assignPromoToMerchant = assignPromoToMerchant;

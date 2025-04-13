@@ -1,6 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
+} from "typeorm";
 import { Delivery } from "./Delivery";
 import { Message } from "./Message";
+import { Promo } from "./Promo";
 
 @Entity()
 export class Merchant {
@@ -33,4 +41,8 @@ export class Merchant {
 
   @OneToMany(() => Message, (message) => message.merchantReceiver)
   receivedMessages?: Message[];
+
+  @ManyToMany(() => Promo, (promo) => promo.users, { cascade: true })
+  @JoinTable()
+  promos!: Promo[];
 }

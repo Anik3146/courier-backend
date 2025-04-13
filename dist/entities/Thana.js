@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Thana = void 0;
 const typeorm_1 = require("typeorm");
 const Agent_1 = require("./Agent");
+const Operator_1 = require("./Operator");
 let Thana = class Thana {
 };
 exports.Thana = Thana;
@@ -27,6 +28,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => Agent_1.Agent, (agent) => agent.thana),
     __metadata("design:type", Array)
 ], Thana.prototype, "agents", void 0);
+__decorate([
+    (0, typeorm_1.ManyToMany)(() => Operator_1.Operator, (operator) => operator.thanas),
+    __metadata("design:type", Array)
+], Thana.prototype, "operators", void 0);
 exports.Thana = Thana = __decorate([
     (0, typeorm_1.Entity)()
 ], Thana);

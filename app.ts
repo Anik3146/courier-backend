@@ -17,6 +17,8 @@ import zoneRoutes from "./routes/zoneRouter";
 import areaRoutes from "./routes/areaRouter";
 import invoiceRoutes from "./routes/invoiceRouter";
 import messageRoutes from "./routes/messageRouter";
+import promoController from "./routes/promoRouter";
+import operatorController from "./routes/operatorRouter";
 
 import cors from "cors";
 import path from "path";
@@ -52,6 +54,8 @@ app.use("/zones", zoneRoutes);
 app.use("/areas", areaRoutes);
 app.use("/invoices", invoiceRoutes);
 app.use("/messages", messageRoutes);
+app.use("/promos", promoController);
+app.use("/operators", operatorController);
 // Serve static files (e.g., images) from the 'uploads' directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/", (req: any, res: any) => {

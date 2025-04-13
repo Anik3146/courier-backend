@@ -9,37 +9,44 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.District = void 0;
+exports.Promo = void 0;
 const typeorm_1 = require("typeorm");
-const Zone_1 = require("./Zone");
-const Operator_1 = require("./Operator");
-let District = class District {
+const Merchant_1 = require("./Merchant");
+let Promo = class Promo {
 };
-exports.District = District;
+exports.Promo = Promo;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
-], District.prototype, "id", void 0);
+], Promo.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ unique: true }),
     __metadata("design:type", String)
-], District.prototype, "name", void 0);
+], Promo.prototype, "code", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => Zone_1.Zone, (zone) => zone.district),
-    __metadata("design:type", Array)
-], District.prototype, "zones", void 0);
+    (0, typeorm_1.Column)("decimal", { precision: 5, scale: 2 }),
+    __metadata("design:type", Number)
+], Promo.prototype, "discount", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => Operator_1.Operator, (operator) => operator.districts),
+    (0, typeorm_1.Column)({ type: "date" }),
+    __metadata("design:type", String)
+], Promo.prototype, "deadline", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: true }),
+    __metadata("design:type", Boolean)
+], Promo.prototype, "active_status", void 0);
+__decorate([
+    (0, typeorm_1.ManyToMany)(() => Merchant_1.Merchant, (user) => user.promos),
     __metadata("design:type", Array)
-], District.prototype, "operators", void 0);
+], Promo.prototype, "users", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
-], District.prototype, "created_at", void 0);
+], Promo.prototype, "created_at", void 0);
 __decorate([
     (0, typeorm_1.UpdateDateColumn)(),
     __metadata("design:type", Date)
-], District.prototype, "updated_at", void 0);
-exports.District = District = __decorate([
+], Promo.prototype, "updated_at", void 0);
+exports.Promo = Promo = __decorate([
     (0, typeorm_1.Entity)()
-], District);
+], Promo);

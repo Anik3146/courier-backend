@@ -17,6 +17,8 @@ import { Zone } from "./entities/Zone";
 import { Area } from "./entities/Area";
 import { Invoice } from "./entities/Invoice";
 import { Message } from "./entities/Message";
+import { Promo } from "./entities/Promo";
+import { Operator } from "./entities/Operator";
 // Add other entities as required
 dotenv.config();
 export const AppDataSource = new DataSource({
@@ -43,6 +45,8 @@ export const AppDataSource = new DataSource({
     Area,
     Invoice,
     Message,
+    Promo,
+    Operator,
   ], // Include all entities
   synchronize: true,
   logging: true,

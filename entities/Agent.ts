@@ -4,12 +4,14 @@ import {
   Column,
   ManyToOne,
   OneToMany,
+  JoinColumn,
 } from "typeorm";
 import { Thana } from "./Thana";
 import { PickupMan } from "./PickupMan";
 import { DeliveryMan } from "./DeliveryMan";
 import { Delivery } from "./Delivery";
 import { Message } from "./Message";
+import { Operator } from "./Operator";
 
 @Entity()
 export class Agent {
@@ -39,4 +41,8 @@ export class Agent {
 
   @OneToMany(() => Message, (message) => message.agentReceiver)
   receivedMessages?: Message[];
+
+  @ManyToOne(() => Operator, (operator) => operator.agents, { nullable: true })
+  @JoinColumn()
+  operator!: Operator;
 }

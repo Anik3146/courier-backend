@@ -9,37 +9,48 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.District = void 0;
+exports.Operator = void 0;
 const typeorm_1 = require("typeorm");
-const Zone_1 = require("./Zone");
-const Operator_1 = require("./Operator");
-let District = class District {
+const District_1 = require("./District");
+const Thana_1 = require("./Thana");
+const Agent_1 = require("./Agent");
+let Operator = class Operator {
 };
-exports.District = District;
+exports.Operator = Operator;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
-], District.prototype, "id", void 0);
+], Operator.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], District.prototype, "name", void 0);
+], Operator.prototype, "name", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => Zone_1.Zone, (zone) => zone.district),
-    __metadata("design:type", Array)
-], District.prototype, "zones", void 0);
+    (0, typeorm_1.Column)({ unique: true }),
+    __metadata("design:type", String)
+], Operator.prototype, "email", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => Operator_1.Operator, (operator) => operator.districts),
+    (0, typeorm_1.ManyToMany)(() => District_1.District, (district) => district.operators),
+    (0, typeorm_1.JoinTable)(),
     __metadata("design:type", Array)
-], District.prototype, "operators", void 0);
+], Operator.prototype, "districts", void 0);
+__decorate([
+    (0, typeorm_1.ManyToMany)(() => Thana_1.Thana, (thana) => thana.operators),
+    (0, typeorm_1.JoinTable)(),
+    __metadata("design:type", Array)
+], Operator.prototype, "thanas", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Agent_1.Agent, (agent) => agent.operator),
+    __metadata("design:type", Array)
+], Operator.prototype, "agents", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
-], District.prototype, "created_at", void 0);
+], Operator.prototype, "created_at", void 0);
 __decorate([
     (0, typeorm_1.UpdateDateColumn)(),
     __metadata("design:type", Date)
-], District.prototype, "updated_at", void 0);
-exports.District = District = __decorate([
+], Operator.prototype, "updated_at", void 0);
+exports.Operator = Operator = __decorate([
     (0, typeorm_1.Entity)()
-], District);
+], Operator);

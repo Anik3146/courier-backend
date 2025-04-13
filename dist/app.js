@@ -22,6 +22,8 @@ const zoneRouter_1 = __importDefault(require("./routes/zoneRouter"));
 const areaRouter_1 = __importDefault(require("./routes/areaRouter"));
 const invoiceRouter_1 = __importDefault(require("./routes/invoiceRouter"));
 const messageRouter_1 = __importDefault(require("./routes/messageRouter"));
+const promoRouter_1 = __importDefault(require("./routes/promoRouter"));
+const operatorRouter_1 = __importDefault(require("./routes/operatorRouter"));
 const cors_1 = __importDefault(require("cors"));
 const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
@@ -52,6 +54,8 @@ app.use("/zones", zoneRouter_1.default);
 app.use("/areas", areaRouter_1.default);
 app.use("/invoices", invoiceRouter_1.default);
 app.use("/messages", messageRouter_1.default);
+app.use("/promos", promoRouter_1.default);
+app.use("/operators", operatorRouter_1.default);
 // Serve static files (e.g., images) from the 'uploads' directory
 app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "uploads")));
 app.use("/", (req, res) => {

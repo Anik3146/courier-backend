@@ -13,6 +13,7 @@ exports.Merchant = void 0;
 const typeorm_1 = require("typeorm");
 const Delivery_1 = require("./Delivery");
 const Message_1 = require("./Message");
+const Promo_1 = require("./Promo");
 let Merchant = class Merchant {
 };
 exports.Merchant = Merchant;
@@ -56,6 +57,11 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => Message_1.Message, (message) => message.merchantReceiver),
     __metadata("design:type", Array)
 ], Merchant.prototype, "receivedMessages", void 0);
+__decorate([
+    (0, typeorm_1.ManyToMany)(() => Promo_1.Promo, (promo) => promo.users, { cascade: true }),
+    (0, typeorm_1.JoinTable)(),
+    __metadata("design:type", Array)
+], Merchant.prototype, "promos", void 0);
 exports.Merchant = Merchant = __decorate([
     (0, typeorm_1.Entity)()
 ], Merchant);

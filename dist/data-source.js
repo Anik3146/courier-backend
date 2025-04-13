@@ -53,6 +53,8 @@ const Zone_1 = require("./entities/Zone");
 const Area_1 = require("./entities/Area");
 const Invoice_1 = require("./entities/Invoice");
 const Message_1 = require("./entities/Message");
+const Promo_1 = require("./entities/Promo");
+const Operator_1 = require("./entities/Operator");
 // Add other entities as required
 dotenv.config();
 exports.AppDataSource = new typeorm_1.DataSource({
@@ -79,6 +81,8 @@ exports.AppDataSource = new typeorm_1.DataSource({
         Area_1.Area,
         Invoice_1.Invoice,
         Message_1.Message,
+        Promo_1.Promo,
+        Operator_1.Operator,
     ], // Include all entities
     synchronize: true,
     logging: true,
