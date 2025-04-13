@@ -134,155 +134,193 @@ export const updateDeliveryStatus = async (
   res: Response
 ): Promise<Response> => {
   const { id } = req.params;
+
   const {
+    store_name,
+    product_type,
+    recipient_name,
+    recipient_phone,
+    recipient_secondary_phone,
+    address,
+    area,
+    instructions,
+    delivery_type,
+    total_weight,
+    quantity,
+    amount_to_collect,
+    price,
+    division,
+    zilla,
+    thana,
     delivery_status,
     pickup_status,
+    payment_status,
+    delivery_charge,
     agentId,
     pickupManId,
     deliveryManId,
   } = req.body;
 
-  // // Validate the required fields
-  // if (!delivery_status && !pickup_status) {
-  //   return res.status(400).json({
-  //     success: false,
-  //     message: "Delivery status or pickup status is required",
-  //     data: {},
-  //   });
-  // }
-
   try {
-    // Find the delivery by ID, along with the necessary relations
     const delivery = await AppDataSource.manager.findOne(Delivery, {
       where: { id: Number(id) },
       relations: ["agent", "pickupMan", "deliveryMan", "merchant"],
     });
 
     if (!delivery) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Delivery not found", data: {} });
+      return res.status(404).json({
+        success: false,
+        message: "Delivery not found",
+        data: {},
+      });
     }
 
-    // Assign the agent if agentId is provided
-    if (agentId) {
+    // ✅ Update general delivery fields
+    if (store_name !== undefined) delivery.store_name = store_name;
+    if (product_type !== undefined) delivery.product_type = product_type;
+    if (recipient_name !== undefined) delivery.recipient_name = recipient_name;
+    if (recipient_phone !== undefined)
+      delivery.recipient_phone = recipient_phone;
+    if (recipient_secondary_phone !== undefined)
+      delivery.recipient_secondary_phone = recipient_secondary_phone;
+    if (address !== undefined) delivery.address = address;
+    if (area !== undefined) delivery.area = area;
+    if (instructions !== undefined) delivery.instructions = instructions;
+    if (delivery_type !== undefined) delivery.delivery_type = delivery_type;
+    if (total_weight !== undefined) delivery.total_weight = total_weight;
+    if (quantity !== undefined) delivery.quantity = quantity;
+    if (amount_to_collect !== undefined)
+      delivery.amount_to_collect = amount_to_collect;
+    if (price !== undefined) delivery.price = price;
+    if (division !== undefined) delivery.division = division;
+    if (zilla !== undefined) delivery.zilla = zilla;
+    if (thana !== undefined) delivery.thana = thana;
+    if (delivery_charge !== undefined)
+      delivery.delivery_charge = delivery_charge;
+
+    if (pickup_status !== undefined) delivery.pickup_status = pickup_status;
+    if (delivery_status !== undefined)
+      delivery.delivery_status = delivery_status;
+    if (payment_status !== undefined) delivery.payment_status = payment_status;
+
+    // ✅ Assign related personnel
+    if (agentId !== undefined) {
       const agent = await AppDataSource.manager.findOne(Agent, {
         where: { id: agentId },
       });
-      if (agent) {
-        delivery.agent = agent;
-      } else {
-        return res.status(404).json({
-          success: false,
-          message: "Agent not found",
-          data: {},
-        });
-      }
+      if (!agent)
+        return res
+          .status(404)
+          .json({ success: false, message: "Agent not found", data: {} });
+      delivery.agent = agent;
     }
 
-    // Assign the pickupMan if pickupManId is provided
-    if (pickupManId) {
+    if (pickupManId !== undefined) {
       const pickupMan = await AppDataSource.manager.findOne(PickupMan, {
         where: { id: pickupManId },
       });
-      if (pickupMan) {
-        delivery.pickupMan = pickupMan;
-      } else {
-        return res.status(404).json({
-          success: false,
-          message: "Pickup Man not found",
-          data: {},
-        });
-      }
+      if (!pickupMan)
+        return res
+          .status(404)
+          .json({ success: false, message: "Pickup Man not found", data: {} });
+      delivery.pickupMan = pickupMan;
     }
 
-    // Update the pickup_status if provided
-    if (pickup_status) {
-      delivery.pickup_status = pickup_status;
-    }
-
-    // Assign the deliveryMan if deliveryManId is provided
-    if (deliveryManId) {
+    if (deliveryManId !== undefined) {
       const deliveryMan = await AppDataSource.manager.findOne(DeliveryMan, {
         where: { id: deliveryManId },
       });
-      if (deliveryMan) {
-        delivery.deliveryMan = deliveryMan;
-      } else {
-        return res.status(404).json({
-          success: false,
-          message: "Delivery Man not found",
-          data: {},
-        });
+      if (!deliveryMan)
+        return res
+          .status(404)
+          .json({
+            success: false,
+            message: "Delivery Man not found",
+            data: {},
+          });
+      delivery.deliveryMan = deliveryMan;
+    }
+
+    // ✅ Save updated delivery before invoice updates
+    await AppDataSource.manager.save(Delivery, delivery);
+
+    // ✅ Update invoice linked to this delivery
+    const invoice = await AppDataSource.manager.findOne(Invoice, {
+      where: { delivery: { id: delivery.id } },
+      relations: ["delivery"],
+    });
+
+    if (invoice) {
+      const updatedCOD = Number(delivery.amount_to_collect || 0);
+      const updatedCharge = Number(delivery.delivery_charge || 0);
+      const updatedPrice = Number(delivery.price || 0);
+      const codFee = updatedCOD * 0.02;
+      const receivableAmount = updatedCOD - (updatedCharge + codFee);
+
+      invoice.total_amount = updatedPrice;
+      invoice.delivery_charge = updatedCharge;
+      invoice.cod_fee = codFee;
+      invoice.collected_amount = updatedCOD;
+      invoice.receivable_amount = receivableAmount;
+
+      // Sync payment status if delivery is marked Paid
+      if (delivery.payment_status === "Paid") {
+        invoice.payment_status = "Paid";
       }
+
+      await AppDataSource.manager.save(invoice);
     }
 
-    // Update the delivery_status if provided
-    if (delivery_status) {
-      delivery.delivery_status = delivery_status;
-    }
-
-    // Check if both statuses are completed (Pick Up and Delivered) before distributing the money
+    // ✅ Money distribution logic
     const isCompleted =
       delivery.delivery_status === "Delivered" &&
       delivery.pickup_status === "Picked Up";
 
-    // If both statuses are completed, distribute the money
     if (
       isCompleted &&
       delivery.agent &&
       delivery.pickupMan &&
       delivery.deliveryMan
     ) {
-      const price = delivery.price || 0;
+      const priceVal = delivery.price || 0;
+      const agentCut = priceVal * 0.1;
+      const pickupManCut = priceVal * 0.03;
+      const deliveryManCut = priceVal * 0.02;
 
-      // Split the price calculation into numeric operations (not string concatenation)
-      const agentCut = price * 0.1; // 10% cut for agent
-      const pickupManCut = price * 0.03; // 3% cut for pickup man
-      const deliveryManCut = price * 0.02; // 2% cut for delivery man
-
-      // Update agent balance
       if (delivery.agent.balance !== undefined) {
         delivery.agent.balance += agentCut;
         await AppDataSource.manager.save(Agent, delivery.agent);
       }
 
-      // Update pickup man balance
       if (delivery.pickupMan.balance !== undefined) {
         delivery.pickupMan.balance += pickupManCut;
         await AppDataSource.manager.save(PickupMan, delivery.pickupMan);
       }
 
-      // Update delivery man balance
       if (delivery.deliveryMan.balance !== undefined) {
         delivery.deliveryMan.balance += deliveryManCut;
         await AppDataSource.manager.save(DeliveryMan, delivery.deliveryMan);
       }
 
-      // Calculate remaining amount for the merchant
       const remainingAmount =
-        price - (agentCut + pickupManCut + deliveryManCut);
+        priceVal - (agentCut + pickupManCut + deliveryManCut);
 
-      // Update merchant balance
       if (delivery.merchant?.balance !== undefined) {
         delivery.merchant.balance += remainingAmount;
         await AppDataSource.manager.save(Merchant, delivery.merchant);
       }
     }
 
-    // Save the updated delivery status
-    await AppDataSource.manager.save(Delivery, delivery);
-
     return res.status(200).json({
       success: true,
-      message: "Delivery status updated successfully",
+      message: "Delivery updated successfully",
       data: delivery,
     });
   } catch (error) {
-    console.error("Error updating delivery status:", error);
+    console.error("Error updating delivery:", error);
     return res.status(500).json({
       success: false,
-      message: "Error updating delivery status",
+      message: "Error updating delivery",
       data: {},
     });
   }

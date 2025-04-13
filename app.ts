@@ -41,27 +41,27 @@ AppDataSource.initialize()
 
 // Use the routes
 
-app.use("/merchant", merchantRouter);
-app.use("/deliveries", deliveryRouter);
-app.use("/delivery-charges", deliveryChargesRoutes);
-app.use("/delivery-men", deliveryManRoutes);
-app.use("/pickup-men", pickupManRoutes);
-app.use("/thanas", thanaRoutes);
-app.use("/withdrawals", withdrawalRoutes);
-app.use("/agents", agentRoutes);
-app.use("/products", productRouter);
-app.use("/pricing-plan", pricingPlanRoutes);
-app.use("/stores", storeRoutes);
-app.use("/districts", districtRoutes);
-app.use("/zones", zoneRoutes);
-app.use("/areas", areaRoutes);
-app.use("/invoices", invoiceRoutes);
-app.use("/messages", messageRoutes);
-app.use("/promos", promoRoutes);
-app.use("/operators", operatorRoutes);
-app.use("/activity-log", activityLogRoutes);
-app.use("/app-info", appInfoRoutes);
-app.use("/device-info", deviceInfoRoutes);
+app.use("/api/merchant", merchantRouter);
+app.use("/api/deliveries", deliveryRouter);
+app.use("/api/delivery-charges", deliveryChargesRoutes);
+app.use("/api/delivery-men", deliveryManRoutes);
+app.use("/api/pickup-men", pickupManRoutes);
+app.use("/api/thanas", thanaRoutes);
+app.use("/api/withdrawals", withdrawalRoutes);
+app.use("/api/agents", agentRoutes);
+app.use("/api/products", productRouter);
+app.use("/api/pricing-plan", pricingPlanRoutes);
+app.use("/api/stores", storeRoutes);
+app.use("/api/districts", districtRoutes);
+app.use("/api/zones", zoneRoutes);
+app.use("/api/areas", areaRoutes);
+app.use("/api/invoices", invoiceRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/promos", promoRoutes);
+app.use("/api/operators", operatorRoutes);
+app.use("/api/activity-log", activityLogRoutes);
+app.use("/api/app-info", appInfoRoutes);
+app.use("/api/device-info", deviceInfoRoutes);
 
 // Serve static files (e.g., images) from the 'uploads' directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

@@ -19,6 +19,7 @@ const updateInvoice = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     try {
         const invoice = yield data_source_1.AppDataSource.manager.findOne(Invoice_1.Invoice, {
             where: { id: Number(id) },
+            relations: ["delivery"], // Needed to access the related delivery
         });
         if (!invoice) {
             return res.status(404).json({
@@ -41,6 +42,11 @@ const updateInvoice = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (payment_status)
             invoice.payment_status = payment_status;
         const updatedInvoice = yield data_source_1.AppDataSource.manager.save(Invoice_1.Invoice, invoice);
+        // ✅ Sync payment_status with Delivery if invoice is marked "Paid"
+        if (payment_status === "Paid" && invoice.delivery) {
+            invoice.delivery.payment_status = "Paid";
+            yield data_source_1.AppDataSource.manager.save(invoice.delivery);
+        }
         return res.status(200).json({
             success: true,
             message: "Invoice updated successfully",

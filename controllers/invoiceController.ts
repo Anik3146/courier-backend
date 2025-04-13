@@ -17,6 +17,7 @@ export const updateInvoice = async (req: Request, res: Response) => {
   try {
     const invoice = await AppDataSource.manager.findOne(Invoice, {
       where: { id: Number(id) },
+      relations: ["delivery"], // Needed to access the related delivery
     });
 
     if (!invoice) {
@@ -39,6 +40,12 @@ export const updateInvoice = async (req: Request, res: Response) => {
     if (payment_status) invoice.payment_status = payment_status;
 
     const updatedInvoice = await AppDataSource.manager.save(Invoice, invoice);
+
+    // ✅ Sync payment_status with Delivery if invoice is marked "Paid"
+    if (payment_status === "Paid" && invoice.delivery) {
+      invoice.delivery.payment_status = "Paid";
+      await AppDataSource.manager.save(invoice.delivery);
+    }
 
     return res.status(200).json({
       success: true,

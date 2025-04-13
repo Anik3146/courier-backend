@@ -41,27 +41,27 @@ data_source_1.AppDataSource.initialize()
     console.error("Error connecting to the database:", error);
 });
 // Use the routes
-app.use("/merchant", merchantRouter_1.default);
-app.use("/deliveries", deliveryRouter_1.default);
-app.use("/delivery-charges", deliveryChargesRouter_1.default);
-app.use("/delivery-men", deliverymanRouter_1.default);
-app.use("/pickup-men", pickupmanRouter_1.default);
-app.use("/thanas", thanaRouter_1.default);
-app.use("/withdrawals", withdrawlRouter_1.default);
-app.use("/agents", agentRouter_1.default);
-app.use("/products", productRouter_1.default);
-app.use("/pricing-plan", pricingPlanRouter_1.default);
-app.use("/stores", storeRouter_1.default);
-app.use("/districts", districtRouter_1.default);
-app.use("/zones", zoneRouter_1.default);
-app.use("/areas", areaRouter_1.default);
-app.use("/invoices", invoiceRouter_1.default);
-app.use("/messages", messageRouter_1.default);
-app.use("/promos", promoRouter_1.default);
-app.use("/operators", operatorRouter_1.default);
-app.use("/activity-log", activityLogRouter_1.default);
-app.use("/app-info", appInfoRouter_1.default);
-app.use("/device-info", deviceInfoRouter_1.default);
+app.use("/api/merchant", merchantRouter_1.default);
+app.use("/api/deliveries", deliveryRouter_1.default);
+app.use("/api/delivery-charges", deliveryChargesRouter_1.default);
+app.use("/api/delivery-men", deliverymanRouter_1.default);
+app.use("/api/pickup-men", pickupmanRouter_1.default);
+app.use("/api/thanas", thanaRouter_1.default);
+app.use("/api/withdrawals", withdrawlRouter_1.default);
+app.use("/api/agents", agentRouter_1.default);
+app.use("/api/products", productRouter_1.default);
+app.use("/api/pricing-plan", pricingPlanRouter_1.default);
+app.use("/api/stores", storeRouter_1.default);
+app.use("/api/districts", districtRouter_1.default);
+app.use("/api/zones", zoneRouter_1.default);
+app.use("/api/areas", areaRouter_1.default);
+app.use("/api/invoices", invoiceRouter_1.default);
+app.use("/api/messages", messageRouter_1.default);
+app.use("/api/promos", promoRouter_1.default);
+app.use("/api/operators", operatorRouter_1.default);
+app.use("/api/activity-log", activityLogRouter_1.default);
+app.use("/api/app-info", appInfoRouter_1.default);
+app.use("/api/device-info", deviceInfoRouter_1.default);
 // Serve static files (e.g., images) from the 'uploads' directory
 app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "uploads")));
 app.use("/", (req, res) => {
