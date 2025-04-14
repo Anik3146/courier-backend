@@ -180,6 +180,19 @@ export const updateDeliveryStatus = async (
       });
     }
 
+    // ✅ Prevent re-processing if already Paid
+    if (
+      delivery.payment_status === "Paid" ||
+      delivery.invoice?.payment_status === "Paid"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Payment already processed for this delivery. Cannot update again.",
+        data: delivery,
+      });
+    }
+
     // ✅ Update general delivery fields
     if (store_name !== undefined) delivery.store_name = store_name;
     if (product_type !== undefined) delivery.product_type = product_type;

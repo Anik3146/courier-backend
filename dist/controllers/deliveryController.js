@@ -110,6 +110,7 @@ const createDelivery = (req, res) => {
 exports.createDelivery = createDelivery;
 // Update Delivery Status (Pickup & Delivery)
 const updateDeliveryStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const { id } = req.params;
     const { store_name, product_type, recipient_name, recipient_phone, recipient_secondary_phone, address, area, instructions, delivery_type, total_weight, quantity, amount_to_collect, price, division, zilla, thana, delivery_status, pickup_status, payment_status, delivery_charge, agentId, pickupManId, deliveryManId, } = req.body;
     try {
@@ -122,6 +123,15 @@ const updateDeliveryStatus = (req, res) => __awaiter(void 0, void 0, void 0, fun
                 success: false,
                 message: "Delivery not found",
                 data: {},
+            });
+        }
+        // ✅ Prevent re-processing if already Paid
+        if (delivery.payment_status === "Paid" ||
+            ((_a = delivery.invoice) === null || _a === void 0 ? void 0 : _a.payment_status) === "Paid") {
+            return res.status(400).json({
+                success: false,
+                message: "Payment already processed for this delivery. Cannot update again.",
+                data: delivery,
             });
         }
         // ✅ Update general delivery fields
