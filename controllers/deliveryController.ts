@@ -351,9 +351,16 @@ export const updateDeliveryStatus = async (
 export const getAllDeliveries = async (_req: Request, res: Response) => {
   try {
     const deliveries = await AppDataSource.manager.find(Delivery);
-    return res.json({ success: true, data: deliveries });
+    return res.json({
+      success: true,
+      message: "All deliveries fetched successfully",
+      data: deliveries,
+    });
   } catch (err) {
-    return res.status(500).json({ success: false, message: "Server Error" });
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
   }
 };
 
@@ -368,13 +375,18 @@ export const getActiveDeliveries = async (_req: Request, res: Response) => {
       "On Hold",
     ];
     const deliveries = await AppDataSource.manager.find(Delivery, {
-      where: {
-        delivery_status: In(activeStatuses),
-      },
+      where: { delivery_status: In(activeStatuses) },
     });
-    return res.json({ success: true, data: deliveries });
+    return res.json({
+      success: true,
+      message: "Active deliveries fetched successfully",
+      data: deliveries,
+    });
   } catch (err) {
-    return res.status(500).json({ success: false, message: "Server Error" });
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
   }
 };
 
@@ -384,9 +396,16 @@ export const getReturnedDeliveries = async (_req: Request, res: Response) => {
     const deliveries = await AppDataSource.manager.find(Delivery, {
       where: { delivery_status: "Returned" },
     });
-    return res.json({ success: true, data: deliveries });
+    return res.json({
+      success: true,
+      message: "Returned deliveries fetched successfully",
+      data: deliveries,
+    });
   } catch (err) {
-    return res.status(500).json({ success: false, message: "Server Error" });
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
   }
 };
 
@@ -396,9 +415,16 @@ export const getReverseDeliveries = async (_req: Request, res: Response) => {
     const deliveries = await AppDataSource.manager.find(Delivery, {
       where: { delivery_status: "Reverse Delivery" },
     });
-    return res.json({ success: true, data: deliveries });
+    return res.json({
+      success: true,
+      message: "Reverse deliveries fetched successfully",
+      data: deliveries,
+    });
   } catch (err) {
-    return res.status(500).json({ success: false, message: "Server Error" });
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
   }
 };
 

@@ -22,6 +22,7 @@ import operatorRoutes from "./routes/operatorRouter";
 import activityLogRoutes from "./routes/activityLogRouter";
 import appInfoRoutes from "./routes/appInfoRouter";
 import deviceInfoRoutes from "./routes/deviceInfoRouter";
+import reportRoutes from "./routes/reportRouter";
 
 import cors from "cors";
 import path from "path";
@@ -62,6 +63,7 @@ app.use("/api/operators", operatorRoutes);
 app.use("/api/activity-log", activityLogRoutes);
 app.use("/api/app-info", appInfoRoutes);
 app.use("/api/device-info", deviceInfoRoutes);
+app.use("/api/report-issue", reportRoutes);
 
 // Serve static files (e.g., images) from the 'uploads' directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

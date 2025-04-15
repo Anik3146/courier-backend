@@ -58,6 +58,7 @@ const Operator_1 = require("./entities/Operator");
 const ActivityLog_1 = require("./entities/ActivityLog");
 const AppInfo_1 = require("./entities/AppInfo");
 const DeviceInfo_1 = require("./entities/DeviceInfo");
+const Report_1 = require("./entities/Report");
 // Add other entities as required
 dotenv.config();
 exports.AppDataSource = new typeorm_1.DataSource({
@@ -89,6 +90,7 @@ exports.AppDataSource = new typeorm_1.DataSource({
         ActivityLog_1.ActivityLog,
         AppInfo_1.AppInfo,
         DeviceInfo_1.DeviceInfo,
+        Report_1.Report,
     ], // Include all entities
     synchronize: true,
     logging: true,

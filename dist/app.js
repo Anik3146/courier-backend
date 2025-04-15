@@ -27,6 +27,7 @@ const operatorRouter_1 = __importDefault(require("./routes/operatorRouter"));
 const activityLogRouter_1 = __importDefault(require("./routes/activityLogRouter"));
 const appInfoRouter_1 = __importDefault(require("./routes/appInfoRouter"));
 const deviceInfoRouter_1 = __importDefault(require("./routes/deviceInfoRouter"));
+const reportRouter_1 = __importDefault(require("./routes/reportRouter"));
 const cors_1 = __importDefault(require("cors"));
 const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
@@ -62,6 +63,7 @@ app.use("/api/operators", operatorRouter_1.default);
 app.use("/api/activity-log", activityLogRouter_1.default);
 app.use("/api/app-info", appInfoRouter_1.default);
 app.use("/api/device-info", deviceInfoRouter_1.default);
+app.use("/api/report-issue", reportRouter_1.default);
 // Serve static files (e.g., images) from the 'uploads' directory
 app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "uploads")));
 app.use("/", (req, res) => {

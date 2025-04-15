@@ -286,10 +286,17 @@ exports.updateDeliveryStatus = updateDeliveryStatus;
 const getAllDeliveries = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const deliveries = yield data_source_1.AppDataSource.manager.find(Delivery_1.Delivery);
-        return res.json({ success: true, data: deliveries });
+        return res.json({
+            success: true,
+            message: "All deliveries fetched successfully",
+            data: deliveries,
+        });
     }
     catch (err) {
-        return res.status(500).json({ success: false, message: "Server Error" });
+        return res.status(500).json({
+            success: false,
+            message: "Server Error",
+        });
     }
 });
 exports.getAllDeliveries = getAllDeliveries;
@@ -304,14 +311,19 @@ const getActiveDeliveries = (_req, res) => __awaiter(void 0, void 0, void 0, fun
             "On Hold",
         ];
         const deliveries = yield data_source_1.AppDataSource.manager.find(Delivery_1.Delivery, {
-            where: {
-                delivery_status: (0, typeorm_1.In)(activeStatuses),
-            },
+            where: { delivery_status: (0, typeorm_1.In)(activeStatuses) },
         });
-        return res.json({ success: true, data: deliveries });
+        return res.json({
+            success: true,
+            message: "Active deliveries fetched successfully",
+            data: deliveries,
+        });
     }
     catch (err) {
-        return res.status(500).json({ success: false, message: "Server Error" });
+        return res.status(500).json({
+            success: false,
+            message: "Server Error",
+        });
     }
 });
 exports.getActiveDeliveries = getActiveDeliveries;
@@ -321,10 +333,17 @@ const getReturnedDeliveries = (_req, res) => __awaiter(void 0, void 0, void 0, f
         const deliveries = yield data_source_1.AppDataSource.manager.find(Delivery_1.Delivery, {
             where: { delivery_status: "Returned" },
         });
-        return res.json({ success: true, data: deliveries });
+        return res.json({
+            success: true,
+            message: "Returned deliveries fetched successfully",
+            data: deliveries,
+        });
     }
     catch (err) {
-        return res.status(500).json({ success: false, message: "Server Error" });
+        return res.status(500).json({
+            success: false,
+            message: "Server Error",
+        });
     }
 });
 exports.getReturnedDeliveries = getReturnedDeliveries;
@@ -334,10 +353,17 @@ const getReverseDeliveries = (_req, res) => __awaiter(void 0, void 0, void 0, fu
         const deliveries = yield data_source_1.AppDataSource.manager.find(Delivery_1.Delivery, {
             where: { delivery_status: "Reverse Delivery" },
         });
-        return res.json({ success: true, data: deliveries });
+        return res.json({
+            success: true,
+            message: "Reverse deliveries fetched successfully",
+            data: deliveries,
+        });
     }
     catch (err) {
-        return res.status(500).json({ success: false, message: "Server Error" });
+        return res.status(500).json({
+            success: false,
+            message: "Server Error",
+        });
     }
 });
 exports.getReverseDeliveries = getReverseDeliveries;

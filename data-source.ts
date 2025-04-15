@@ -22,6 +22,7 @@ import { Operator } from "./entities/Operator";
 import { ActivityLog } from "./entities/ActivityLog";
 import { AppInfo } from "./entities/AppInfo";
 import { DeviceInfo } from "./entities/DeviceInfo";
+import { Report } from "./entities/Report";
 // Add other entities as required
 dotenv.config();
 export const AppDataSource = new DataSource({
@@ -53,6 +54,7 @@ export const AppDataSource = new DataSource({
     ActivityLog,
     AppInfo,
     DeviceInfo,
+    Report,
   ], // Include all entities
   synchronize: true,
   logging: true,
