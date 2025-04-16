@@ -5,19 +5,24 @@ import { District } from "../entities/District";
 const repo = AppDataSource.getRepository(District);
 
 export const getAllDistricts = async (req: Request, res: Response) => {
-  const districts = await repo.find({ relations: ["zones"] });
+  const districts = await repo.find({
+    relations: ["zones", "zones.areas"], // 👈 include areas
+  });
+
   res.json({ success: true, message: "Districts fetched.", data: districts });
 };
 
 export const getDistrictById = async (req: Request, res: Response) => {
   const district = await repo.findOne({
     where: { id: +req.params.id },
-    relations: ["zones"],
+    relations: ["zones", "zones.areas"], // 👈 include areas
   });
-  if (!district)
+
+  if (!district) {
     return res
       .status(404)
       .json({ success: false, message: "Not found", data: null });
+  }
 
   res.json({ success: true, message: "District fetched.", data: district });
 };

@@ -14,19 +14,22 @@ const data_source_1 = require("../data-source");
 const District_1 = require("../entities/District");
 const repo = data_source_1.AppDataSource.getRepository(District_1.District);
 const getAllDistricts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const districts = yield repo.find({ relations: ["zones"] });
+    const districts = yield repo.find({
+        relations: ["zones", "zones.areas"], // 👈 include areas
+    });
     res.json({ success: true, message: "Districts fetched.", data: districts });
 });
 exports.getAllDistricts = getAllDistricts;
 const getDistrictById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const district = yield repo.findOne({
         where: { id: +req.params.id },
-        relations: ["zones"],
+        relations: ["zones", "zones.areas"], // 👈 include areas
     });
-    if (!district)
+    if (!district) {
         return res
             .status(404)
             .json({ success: false, message: "Not found", data: null });
+    }
     res.json({ success: true, message: "District fetched.", data: district });
 });
 exports.getDistrictById = getDistrictById;
